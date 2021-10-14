@@ -29,6 +29,7 @@ class Monster:
         self.frame = 0
     def update(self):
         self.frame = (self.frame+1)%2
+        self.x += (dir / 2)
     def draw(self):
         self.image.clip_draw(self.frame * 10, 20, 77, 60, self.x, self.y)
 class HERO:
@@ -40,13 +41,17 @@ class HERO:
         self.endy=self.y+100
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
-    def update(self):
+    def update(self,mon):
         self.frame=(self.frame+1)%8
+        if mon.x == self.x and mon.y == self.y:#죽음 판정
+            self.x = 1000
+        if self.x>=mon.x and self.x<=mon.x+77 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 피격
+            mon.x=1000
     def jump(self):
         global jumping
         if jumping == True and self.Falling == False:
             if self.y < self.endy:
-                self.y+=1
+                self.y+=0.5
             if self.y >= self.endy:
                 self.Falling = True
                 jumping = False
@@ -114,26 +119,10 @@ hero = HERO()
 cloud = CLOUDS()
 mountain = Mountain()
 woods = WOODS()
-
-def draw_object():      #오브젝트 그리기,움직임
-    global cloud_move
-    global movex
-    global cloudx
-    global cx,cy
-    global lookright
-    clouds_x=450+ cloudx / 2 + cloud_move / 5
-    if clouds_x < -100:
-        clouds_x = 450
-        cloud_move = 0
-        cloudx=600
-    mountain.clip_draw(330, 142, 210, 100, 200 + movex / 5, 80 + movey)
-    woods.clip_draw(22, 142, 290, 70, 450 + movex / 5, 70 + movey)
-
-    cloud_move+=dir*2-1
 while running:
     #update obj
     mon.update()
-    hero.update()
+    hero.update(mon)
     cloud.update()
     mountain.update()
     woods.update()
