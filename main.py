@@ -32,13 +32,23 @@ class Monster:
         self.x += (dir / 2)
     def draw(self):
         self.image.clip_draw(self.frame * 10, 20, 77, 60, self.x, self.y)
+class castle:
+    def __init__(self):
+        self.image = load_image('castle.png')
+        self.x = 1800
+        self.y = 140
+    def update(self):
+        self.x+=dir/2
+    def draw(self):
+        self.image.draw(self.x,self.y)
 class HERO:
     def __init__(self):
-        self.image = load_image('animation_sheet.png')
+        self.image = load_image('mario_run.png')
+        self.image2 = load_image('mario_stand.png')
         self.x = 400
-        self.y = 70
+        self.y = 62
         self.frame = 0
-        self.endy=self.y+100
+        self.endy=self.y+200
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
     def update(self,mon):
@@ -56,22 +66,22 @@ class HERO:
                 self.Falling = True
                 jumping = False
         if jumping == False and self.Falling == True:
-            if self.y >= 70:
+            if self.y >= 62:
                 self.y-=1
-            if self.y <= 70:
+            if self.y <= 62:
                 self.Falling = False
     def draw(self):
         self.jump()
         if dir == -1:
-            self.image.clip_draw(self.frame * 100, 100 * 1, 100, 100, self.x, self.y)
+            self.image.clip_draw(self.frame * 50, 0, 50, 50, self.x, self.y)
             self.lookright = True
         if dir == 1:
-            self.image.clip_draw(self.frame * 100, 0 * 1, 100, 100, self.x, self.y)
+            self.image.clip_draw(self.frame * 50, 0 , 50, 50, self.x, self.y)
             self.lookright = False
         if self.lookright == True and dir == 0:
-            self.image.clip_draw(self.frame * 100, 300 * 1, 100, 100, self.x, self.y)
+            self.image2.draw(self.x,self.y)
         if self.lookright == False and dir == 0:
-            self.image.clip_draw(self.frame * 100, 200 * 1, 100, 100, self.x, self.y)
+            self.image2.draw(self.x, self.y)
 class CLOUDS:
     def __init__(self):
         self.image = load_image('sprite.png')
@@ -109,9 +119,9 @@ class WOODS:
             self.x = -50
     def draw(self):
         self.image.clip_draw(22, 142, 290, 70, self.x,self.y)
+
 dir = 0 #방향값
 background = load_image('background.png')
-woods = load_image('sprite.png')
 floor = load_image('floor.png')
 
 mon = Monster()
@@ -119,21 +129,33 @@ hero = HERO()
 cloud = CLOUDS()
 mountain = Mountain()
 woods = WOODS()
-while running:
-    #update obj
+cs = castle()
+
+def Update_Obj():
     mon.update()
     hero.update(mon)
     cloud.update()
     mountain.update()
     woods.update()
-    #draw object
+    cs.update()
+
+def Draw_obj():
     background.draw(200, 200)
     floor.clip_draw(0, 0, 800, 40, 400, 20)
     cloud.draw()
     mountain.draw()
     woods.draw()
+    cs.draw()
     mon.draw()
     hero.draw()
+
+while running:
+    #update obj
+    Update_Obj()
+    #draw object
+    Draw_obj()
+
+
     update_canvas()
     handle_events()
     #delay(0.001)
