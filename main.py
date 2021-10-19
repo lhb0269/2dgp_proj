@@ -25,13 +25,15 @@ class Monster:
     def __init__(self):
         self.image = load_image('sprite.png')
         self.x = 500
-        self.y = 70
+        self.y = 62
         self.frame = 0
     def update(self):
         self.frame = (self.frame+1)%2
-        self.x += (dir / 2)
+        self.x += (dir / 2) -0.25
     def draw(self):
-        self.image.clip_draw(self.frame * 10, 20, 77, 60, self.x, self.y)
+        self.image.clip_draw(self.frame * 80, 0, 80, 80, self.x, self.y)
+        if self.x <=-100:
+            self.x=1000
 class castle:
     def __init__(self):
         self.image = load_image('castle.png')
@@ -47,28 +49,36 @@ class HERO:
         self.image2 = load_image('mario_stand.png')
         self.x = 400
         self.y = 62
+        self.miny = 62
         self.frame = 0
         self.endy=self.y+200
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
-    def update(self,mon):
+    def update(self,mon,block):
+        global jumping
         self.frame=(self.frame+1)%8
-        if mon.x == self.x and mon.y == self.y:#죽음 판정
+        if (mon.x == self.x and mon.y == self.y) or (mon.x+60 == self.x and mon.y == self.y):#죽음 판정
             self.x = 1000
         if self.x>=mon.x and self.x<=mon.x+77 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 피격
             mon.x=1000
+        if self.x>=block.x-40 and self.x<=block.x+60 and self.y >= block.y-50  and jumping == True:
+            jumping = False
+            self.Falling = True
+            block.life -= 1
     def jump(self):
         global jumping
         if jumping == True and self.Falling == False:
+            self.frame = 1
             if self.y < self.endy:
                 self.y+=0.5
             if self.y >= self.endy:
                 self.Falling = True
                 jumping = False
         if jumping == False and self.Falling == True:
-            if self.y >= 62:
+            self.frame=1
+            if self.y >= self.miny:
                 self.y-=1
-            if self.y <= 62:
+            if self.y <= self.miny:
                 self.Falling = False
     def draw(self):
         self.jump()
@@ -76,12 +86,12 @@ class HERO:
             self.image.clip_draw(self.frame * 50, 0, 50, 50, self.x, self.y)
             self.lookright = True
         if dir == 1:
-            self.image.clip_draw(self.frame * 50, 0 , 50, 50, self.x, self.y)
+            self.image.clip_composite_draw(self.frame * 50, 0 ,50, 50, 2*3.14,'h',self.x, self.y,50,50)
             self.lookright = False
         if self.lookright == True and dir == 0:
             self.image2.draw(self.x,self.y)
         if self.lookright == False and dir == 0:
-            self.image2.draw(self.x, self.y)
+            self.image2.composite_draw(2*3.14,'h',self.x,self.y,50,50)
 class CLOUDS:
     def __init__(self):
         self.image = load_image('sprite.png')
@@ -119,6 +129,29 @@ class WOODS:
             self.x = -50
     def draw(self):
         self.image.clip_draw(22, 142, 290, 70, self.x,self.y)
+class BLOCK:
+    def __init__(self):
+        self.x = 500
+        self.y = 200
+        self.image = load_image('sprite.png')
+        self.life = 3
+        self.i=3
+    def update(self):
+        self.x += (dir / 2)
+        if self.x < -100:
+            self.x = 1000
+        if self.x > 1100:
+            self.x = -50
+        if self.life % self.i != 0:
+            self.i -= 1
+        if self.life ==0:
+            self.x = 1000
+    def draw(self):
+        for i in range(2, 5):
+            self.y += i
+        for i in range(2, 5):
+            self.y -= i
+        self.image.clip_draw(950, 500, 60, 53, self.x, self.y)
 
 dir = 0 #방향값
 background = load_image('background.png')
@@ -130,14 +163,16 @@ cloud = CLOUDS()
 mountain = Mountain()
 woods = WOODS()
 cs = castle()
+block = BLOCK()
 
 def Update_Obj():
     mon.update()
-    hero.update(mon)
+    hero.update(mon,block)
     cloud.update()
     mountain.update()
     woods.update()
     cs.update()
+    block.update()
 
 def Draw_obj():
     background.draw(200, 200)
@@ -148,6 +183,7 @@ def Draw_obj():
     cs.draw()
     mon.draw()
     hero.draw()
+    block.draw()
 
 while running:
     #update obj
@@ -159,4 +195,3 @@ while running:
     update_canvas()
     handle_events()
     #delay(0.001)
-
