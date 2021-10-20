@@ -61,10 +61,17 @@ class HERO:
             self.x = 1000
         if self.x>=mon.x and self.x<=mon.x+77 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 피격
             mon.x=1000
-        if self.x>=block.x-40 and self.x<=block.x+60 and self.y >= block.y-50  and jumping == True:
+        if self.x>=block.x-40 and self.x<=block.x+60 and self.y >= block.y-50  and jumping == True: #벽 위로 박기
             jumping = False
             self.Falling = True
             block.life -= 1
+        # if self.x>=block.x-40 and self.x<=block.x+60 and self.y == block.y+53  and jumping == False:#벽 위에 서기
+        #     self.Falling = False
+        #     self.miny = self.y+3
+        #     self.y+=3
+        #     self.endy = self.y + 200
+        if (self.y>self.miny):
+            self.y-=0.1
     def jump(self):
         global jumping
         if jumping == True and self.Falling == False:
@@ -132,7 +139,7 @@ class WOODS:
 class BLOCK:
     def __init__(self):
         self.x = 500
-        self.y = 200
+        self.y = 100
         self.image = load_image('sprite.png')
         self.life = 3
         self.i=3
