@@ -4,7 +4,7 @@ import random
 class BLOCK:
     def __init__(self,xpos):
         self.x = xpos
-        self.y = 100
+        self.y = 250
         self.image = load_image('sprite.png')
         self.life = 3
     def update(self):
