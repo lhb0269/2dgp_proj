@@ -6,10 +6,11 @@ from pico2d import *
 
 import game_framework
 import title_state
-import mario
-import monster
-import block
-import background
+import game_world
+from mario import HERO
+from monster import Monster
+from block import BLOCK
+from background import *
 
 name = "MainState"
 
@@ -28,29 +29,27 @@ def enter():
     global hero,mon,cloud,mountain,woods,cs,se,blocks,back,floor
     back = load_image('background.png')
     floor = load_image('floor.png')
+    mon = Monster()
+    hero = HERO()
 
-    mon = monster.Monster()
-    hero = mario.HERO()
+    cloud = CLOUDS()
+    mountain = Mountain()
+    woods = WOODS()
+    cs = castle()
+    se = sewer()
+    blocks = [BLOCK(400), BLOCK(460), BLOCK(520)]
+    game_world.add_object(cloud,0)
+    game_world.add_object(mountain,0)
+    game_world.add_object(woods,0)
+    game_world.add_object(mon,1)
+    game_world.add_object(hero,1)
+    game_world.add_object(cs,1)
+    game_world.add_object(se,1)
+    game_world.add_objects(blocks,1)
 
-    cloud = background.CLOUDS()
-    mountain = background.Mountain()
-    woods = background.WOODS()
-    cs = background.castle()
-    se = background.sewer()
-    blocks = [block.BLOCK(400), block.BLOCK(460), block.BLOCK(520)]
 
 def exit():
-    global hero,mon,cloud,mountain,woods,cs,se,blocks,back,floor
-    del(hero)
-    del (mon)
-    del (cloud)
-    del (mountain)
-    del (woods)
-    del (cs)
-    del (se)
-    del (blocks)
-    del (back)
-    del (floor)
+    game_world.clear()
 
 def pause():
     pass
@@ -79,31 +78,19 @@ def handle_events():
 
 
 def update():
-    mon.update()
-    hero.update(mon, blocks)
-    cloud.update()
-    mountain.update()
-    woods.update()
-    cs.update()
-    se.update()
-    for block in blocks:
-        block.update()
-    update_canvas()
-
+    for game_object in game_world.all_objects():
+        if game_object == hero:
+            game_object.update(mon,blocks)
+        else:
+            game_object.update()
 
 def draw():
+    clear_canvas()
     back.draw(200, 200)
     floor.clip_draw(0, 0, 800, 40, 400, 20)
-    cloud.draw()
-    mountain.draw()
-    woods.draw()
-    cs.draw()
-    mon.draw()
-    hero.draw()
-    se.draw()
-    for block in blocks:
-        block.draw()
-
+    for game_obejct in game_world.all_objects():
+       game_obejct.draw()
+    update_canvas()
 
 
 
