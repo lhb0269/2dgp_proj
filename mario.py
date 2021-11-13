@@ -169,37 +169,21 @@ class HERO:
                 print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
-        # global jumping
-        # self.frame=(self.frame+1)%8
-        # if (mon.x == self.x and mon.y+10 >= self.y) or (mon.x+80 == self.x and mon.y+10 >= self.y):#죽음 판정
-        #     self.x = 1000
-        # if self.x>=mon.x-20 and self.x<=mon.x+80 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 사망
-        #     mon.x=1000
-        # for block in blocks:
-        #  if self.x>=block.x-40 and self.x<=block.x+40 and self.y >= block.y-50  and jumping == True: #벽 위로 박기
-        #         jumping = False
-        #         self.Falling = True
-        #         block.life -= 1
-        # if self.x>=block.x and self.x<=block.x+60 and self.y <= block.y+50  and self.y >= block.y and jumping == False:#벽 위에 서기
-        #     self.Falling = False
-        #     self.miny = self.y-1
-        #     self.y+=3
-        #     self.endy = self.y + 200
-    # def jump(self):
-    #     global jumping
-    #     if jumping == True and self.Falling == False:
-    #         self.frame = 1
-    #         if self.y < self.endy:
-    #             self.y+=0.5
-    #         if self.y >= self.endy:
-    #             self.Falling = True
-    #             jumping = False
-    #     if jumping == False and self.Falling == True:
-    #         self.frame=1
-    #         if self.y >= self.miny:
-    #             self.y-=1
-    #         if self.y <= self.miny:
-    #             self.Falling = False
+        global jumping
+        if (mon.x == self.x and mon.y+10 >= self.y) or (mon.x+80 == self.x and mon.y+10 >= self.y):#죽음 판정
+            self.x = 1000
+        if self.x>=mon.x-20 and self.x<=mon.x+80 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 사망
+            mon.x=1000
+        for block in blocks:
+         if self.x>=block.x-40 and self.x<=block.x+40 and self.y >= block.y-50  and jumping == True: #벽 위로 박기
+                jumping = False
+                self.Falling = True
+                block.life -= 1
+        if self.x>=block.x and self.x<=block.x+60 and self.y <= block.y+50  and self.y >= block.y and jumping == False:#벽 위에 서기
+            self.Falling = False
+            self.miny = self.y-1
+            self.y+=3
+            self.endy = self.y + 200
     def add_event(self, event):
         self.event_que.insert(0, event)
     def draw(self):
