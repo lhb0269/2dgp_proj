@@ -2,7 +2,7 @@ from pico2d import *
 
 import game_framework
 
-jumping = False
+jumping = True
 dir = 0
 PIXEL_PER_METER = (10.0/0.3)
 RUN_SPEED_KMPH = 10.0
@@ -10,13 +10,19 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
+
+JUMP_SPEED_KMPH= 0.1
+JUMP_SPEED_MPM = (JUMP_SPEED_KMPH * 1000.0 / 60.0)
+JUMP_SPEED_MPS = (JUMP_SPEED_MPM/60.0)
+JUMP_SPEED_PPS = (JUMP_SPEED_MPS * PIXEL_PER_METER)
+
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
-LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP = range(6)
-event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP'
+LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END = range(7)
+event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END'
 
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
@@ -29,6 +35,7 @@ key_event_table ={
 
 class IdleState:
     def enter(HERO,event):
+        print('idle')
         global dir
         if event == LEFT_DOWN:
             HERO.velocity -= RUN_SPEED_PPS
@@ -90,15 +97,13 @@ class RunState:
         if dir == 1:
             HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
             HERO.lookright = False
-        if jumping == True or HERO.Falling == True:
-            HERO.frame = 1
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
             HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
 class JumpState:
     def enter(HERO,event):
-        print('jump')
+        pass
     def exit(HERO,event):
         print('jump out')
     def do(HERO):
@@ -106,22 +111,24 @@ class JumpState:
         if jumping == True and HERO.Falling == False:
             HERO.frame = 1
             if HERO.y < HERO.endy:
-                HERO.y += 0.5
+                HERO.y += JUMP_SPEED_PPS
             if HERO.y >= HERO.endy:
                 HERO.Falling = True
                 jumping = False
         if jumping == False and HERO.Falling == True:
             HERO.frame = 1
             if HERO.y >= HERO.miny:
-                HERO.y -= 1
+                HERO.y -= JUMP_SPEED_PPS
             if HERO.y <= HERO.miny:
                 HERO.Falling = False
+                jumping = True
+                HERO.add_event(JUMP_END)
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(HERO.frame * 50, 0, 50, 50, HERO.x, HERO.y)
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y)
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(HERO.frame * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x,HERO.y, 50, 50)
             HERO.lookright = False
         if jumping == True or HERO.Falling == True:
             HERO.frame = 1
@@ -131,8 +138,8 @@ class JumpState:
             HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
 
 next_state_table = {
-    JumpState:{JUMP_UP:RunState,RIGHT_DOWN:IdleState,LEFT_DOWN:IdleState,LEFT_UP:IdleState,RIGHT_UP:IdleState},
-    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:IdleState},
+    JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState},
+    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:JumpState},
     RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:JumpState,JUMP_UP:RunState}
 }
 class HERO:
