@@ -1,7 +1,8 @@
 from pico2d import *
 
 import game_framework
-
+import game_world
+from fire import Fire
 jumping = True
 dir = 0
 PIXEL_PER_METER = (10.0/0.3)
@@ -21,8 +22,8 @@ ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
-LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END = range(7)
-event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END'
+LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END,SPACE = range(8)
+event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE'
 
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
@@ -30,7 +31,8 @@ key_event_table ={
     (SDL_KEYUP,SDLK_a):LEFT_UP,
     (SDL_KEYUP,SDLK_d):RIGHT_UP,
     (SDL_KEYDOWN,SDLK_w):JUMP_DOWN,
-    (SDL_KEYUP,SDLK_w):JUMP_UP
+    (SDL_KEYUP,SDLK_w):JUMP_UP,
+    (SDL_KEYDOWN,SDLK_SPACE):SPACE
 }
 
 class IdleState:
@@ -50,7 +52,8 @@ class IdleState:
             HERO.velocity -= RUN_SPEED_PPS
             dir=0
     def exit(HERO,event):
-        pass
+        if event == SPACE:
+            HERO.fire()
 
     def do(HERO):
         HERO.frame = (HERO.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
@@ -84,7 +87,8 @@ class RunState:
             HERO.velocity -= RUN_SPEED_PPS
             dir=0
     def exit(HERO,event):
-        pass
+        if event == SPACE:
+            HERO.fire()
     def do(HERO):
         HERO.frame = (HERO.frame + FRAMES_PER_ACTION * ACTION_PER_TIME *game_framework.frame_time) % 8
         HERO.x += HERO.velocity * game_framework.frame_time
@@ -105,7 +109,8 @@ class JumpState:
     def enter(HERO,event):
         pass
     def exit(HERO,event):
-        print('jump out')
+        if event == SPACE:
+            HERO.fire()
     def do(HERO):
         global jumping
         if jumping == True and HERO.Falling == False:
@@ -138,9 +143,9 @@ class JumpState:
             HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
 
 next_state_table = {
-    JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState},
-    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:JumpState},
-    RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:JumpState,JUMP_UP:RunState}
+    JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState,SPACE:JumpState},
+    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:JumpState,SPACE:IdleState},
+    RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:JumpState,JUMP_UP:RunState,SPACE:RunState}
 }
 class HERO:
     def __init__(self):
@@ -194,3 +199,6 @@ class HERO:
             # if DEBUG_KEY == key_event:
             #     print(history[-10:])
             self.add_event(key_event)
+    def fire(self):
+        fire = Fire(self.x,self.y,dir)
+        game_world.add_object(fire,1)
