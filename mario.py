@@ -5,12 +5,12 @@ import game_world
 from fire import Fire
 jumping = True
 dir = 0
+
 PIXEL_PER_METER = (10.0/0.3)
 RUN_SPEED_KMPH = 10.0
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
-
 
 JUMP_SPEED_KMPH= 0.1
 JUMP_SPEED_MPM = (JUMP_SPEED_KMPH * 1000.0 / 60.0)
@@ -22,8 +22,8 @@ ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
-LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END,SPACE = range(8)
-event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE'
+LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END,SPACE,LEVELUP = range(9)
+event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE','LEVEL_UP'
 
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
@@ -32,25 +32,28 @@ key_event_table ={
     (SDL_KEYUP,SDLK_d):RIGHT_UP,
     (SDL_KEYDOWN,SDLK_w):JUMP_DOWN,
     (SDL_KEYUP,SDLK_w):JUMP_UP,
-    (SDL_KEYDOWN,SDLK_SPACE):SPACE
+    (SDL_KEYDOWN,SDLK_SPACE):SPACE,
+    (SDL_KEYDOWN,SDLK_r):LEVELUP
 }
 
 class IdleState:
     def enter(HERO,event):
-        print('idle')
         global dir
-        if event == LEFT_DOWN:
-            HERO.velocity -= RUN_SPEED_PPS
-            dir=1
-        elif event == RIGHT_DOWN:
-            HERO.velocity += RUN_SPEED_PPS
-            dir=-1
-        elif event == LEFT_UP:
-            HERO.velocity += RUN_SPEED_PPS
-            dir=0
-        elif event == RIGHT_UP:
-            HERO.velocity -= RUN_SPEED_PPS
-            dir=0
+        if HERO.die == False:
+            if event == LEFT_DOWN:
+                HERO.velocity -= RUN_SPEED_PPS
+                dir=1
+            elif event == RIGHT_DOWN:
+                HERO.velocity += RUN_SPEED_PPS
+                dir=-1
+            elif event == LEFT_UP:
+                HERO.velocity += RUN_SPEED_PPS
+                dir=0
+            elif event == RIGHT_UP:
+                HERO.velocity -= RUN_SPEED_PPS
+                dir=0
+            elif event == LEVELUP:
+                HERO.image = load_image('big_mario_run.png')
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
@@ -67,6 +70,9 @@ class IdleState:
             HERO.lookright = False
         if jumping == True or HERO.Falling == True:
             HERO.frame = 1
+        if HERO.die == True:
+            HERO.image2 = load_image('mario_dead.png')
+            JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
@@ -74,18 +80,21 @@ class IdleState:
 class RunState:
     def enter(HERO, event):
         global dir
-        if event == LEFT_DOWN:
-            HERO.velocity -= RUN_SPEED_PPS
-            dir=1
-        elif event == RIGHT_DOWN:
-            HERO.velocity += RUN_SPEED_PPS
-            dir=-1
-        elif event == LEFT_UP:
-            HERO.velocity += RUN_SPEED_PPS
-            dir=0
-        elif event == RIGHT_UP:
-            HERO.velocity -= RUN_SPEED_PPS
-            dir=0
+        if HERO.die == False:
+            if event == LEFT_DOWN:
+                HERO.velocity -= RUN_SPEED_PPS
+                dir=1
+            elif event == RIGHT_DOWN:
+                HERO.velocity += RUN_SPEED_PPS
+                dir=-1
+            elif event == LEFT_UP:
+                HERO.velocity += RUN_SPEED_PPS
+                dir=0
+            elif event == RIGHT_UP:
+                HERO.velocity -= RUN_SPEED_PPS
+                dir=0
+            elif event == LEVELUP:
+                HERO.image = load_image('big_mario_run.png')
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
@@ -101,6 +110,9 @@ class RunState:
         if dir == 1:
             HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
             HERO.lookright = False
+        if HERO.die == True:
+            HERO.image2 = load_image('mario_dead.png')
+            JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
@@ -143,19 +155,25 @@ class JumpState:
             HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
 
 next_state_table = {
-    JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState,SPACE:JumpState},
-    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:JumpState,SPACE:IdleState},
-    RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:JumpState,JUMP_UP:RunState,SPACE:RunState}
+    JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState,SPACE:JumpState,},
+    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:JumpState,SPACE:IdleState,JUMP_END:IdleState
+               ,LEVELUP:IdleState},
+    RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:JumpState,JUMP_UP:RunState,SPACE:RunState,JUMP_END:RunState,
+              LEVELUP:RunState}
 }
 class HERO:
+
     def __init__(self):
         self.image = load_image('mario_run.png')
         self.image2 = load_image('mario_stand.png')
+        self.die_image = load_image('mario_dead.png')
         self.x = 400
         self.y = 62
         self.miny = 62
         self.frame = 0
         self.velocity=0
+        self.levelcode = 0  #0 일반 1 커짐 2 불공격가능 3 무적
+        self.die = False
         self.endy=self.y+200
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
@@ -175,8 +193,8 @@ class HERO:
                 exit(-1)
             self.cur_state.enter(self, event)
         global jumping
-        if (mon.x == self.x and mon.y+10 >= self.y) or (mon.x+80 == self.x and mon.y+10 >= self.y):#죽음 판정
-            self.x = 1000
+        if (int(mon.x) == int(self.x) and mon.y >= self.y) or (int(mon.x)+80 == int(self.x) and mon.y >= self.y):#죽음 판정
+            self.die = True
         if self.x>=mon.x-20 and self.x<=mon.x+80 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 사망
             mon.x=1000
         for block in blocks:
