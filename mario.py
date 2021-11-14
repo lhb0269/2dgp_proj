@@ -24,7 +24,10 @@ FRAMES_PER_ACTION = 8
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
 LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END,SPACE,LEVELUP = range(9)
 event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE','LEVEL_UP'
+Run_Img_code = 'mario_run.png','big_mario_run.png'
+stand_img_code = 'mario_stand.png'
 
+img_ylist=50,90
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
     (SDL_KEYDOWN,SDLK_d):RIGHT_DOWN,
@@ -52,11 +55,12 @@ class IdleState:
             elif event == RIGHT_UP:
                 HERO.velocity -= RUN_SPEED_PPS
                 dir=0
-            elif event == LEVELUP:
-                HERO.image = load_image('big_mario_run.png')
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
+        if event == LEVELUP:
+            HERO.levelup()
+            print('level')
 
     def do(HERO):
         HERO.frame = (HERO.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
@@ -93,11 +97,12 @@ class RunState:
             elif event == RIGHT_UP:
                 HERO.velocity -= RUN_SPEED_PPS
                 dir=0
-            elif event == LEVELUP:
-                HERO.image = load_image('big_mario_run.png')
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
+        if event == LEVELUP:
+            HERO.levelup()
+            print('level')
     def do(HERO):
         HERO.frame = (HERO.frame + FRAMES_PER_ACTION * ACTION_PER_TIME *game_framework.frame_time) % 8
         HERO.x += HERO.velocity * game_framework.frame_time
@@ -207,6 +212,7 @@ class HERO:
             self.miny = self.y-1
             self.y+=3
             self.endy = self.y + 200
+
     def add_event(self, event):
         self.event_que.insert(0, event)
     def draw(self):
@@ -220,3 +226,6 @@ class HERO:
     def fire(self):
         fire = Fire(self.x,self.y,dir)
         game_world.add_object(fire,1)
+    def levelup(self):
+        self.levelcode +=1
+        self.image=load_image(Run_Img_code[self.levelcode])
