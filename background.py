@@ -16,6 +16,19 @@ class castle:
         self.x+=mario.dir/2
     def draw(self):
         self.image.draw(self.x,self.y)
+class FLOOR:
+    image = None
+    def __init__(self):
+        if self.image == None:
+            self.image = load_image('floor.png')
+        self.x,self.y = 400,20
+    def update(self):
+        pass
+    def draw(self):
+        self.image.clip_draw(0, 0, 800, 40, self.x, self.y)
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x - 400, self.y - 20, self.x + 400, self.y + 20
 class CLOUDS:
     def __init__(self):
         self.image = load_image('sprite.png')
@@ -66,3 +79,6 @@ class sewer:
             self.x = -50
     def draw(self):
         self.image.clip_draw(1165,140,142,140,self.x,self.y)
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x - 71, self.y-70, self.x + 71, self.y + 70

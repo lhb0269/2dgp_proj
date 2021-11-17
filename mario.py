@@ -2,8 +2,8 @@ from pico2d import *
 
 import game_framework
 import game_world
+import main_state
 from fire import Fire
-jumping = True
 dir = 0
 
 PIXEL_PER_METER = (10.0/0.3)
@@ -44,16 +44,12 @@ class IdleState:
         global dir
         if HERO.die == False:
             if event == LEFT_DOWN:
-                HERO.velocity -= RUN_SPEED_PPS
                 dir=1
             elif event == RIGHT_DOWN:
-                HERO.velocity += RUN_SPEED_PPS
                 dir=-1
             elif event == LEFT_UP:
-                HERO.velocity += RUN_SPEED_PPS
                 dir=0
             elif event == RIGHT_UP:
-                HERO.velocity -= RUN_SPEED_PPS
                 dir=0
     def exit(HERO,event):
         if event == SPACE:
@@ -72,7 +68,7 @@ class IdleState:
         if dir == 1:
             HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
             HERO.lookright = False
-        if jumping == True or HERO.Falling == True:
+        if  HERO.Falling == True:
             HERO.frame = 1
         if HERO.die == True:
             HERO.image2 = load_image('mario_dead.png')
@@ -86,16 +82,12 @@ class RunState:
         global dir
         if HERO.die == False:
             if event == LEFT_DOWN:
-                HERO.velocity -= RUN_SPEED_PPS
                 dir=1
             elif event == RIGHT_DOWN:
-                HERO.velocity += RUN_SPEED_PPS
                 dir=-1
             elif event == LEFT_UP:
-                HERO.velocity += RUN_SPEED_PPS
                 dir=0
             elif event == RIGHT_UP:
-                HERO.velocity -= RUN_SPEED_PPS
                 dir=0
     def exit(HERO,event):
         if event == SPACE:
@@ -110,10 +102,10 @@ class RunState:
 
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y)
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 100, HERO.x, HERO.y,50,50)
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 100, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
             HERO.lookright = False
         if HERO.die == True:
             HERO.image2 = load_image('mario_dead.png')
@@ -124,27 +116,23 @@ class RunState:
             HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
 class JumpState:
     def enter(HERO,event):
+        if HERO.Jumping == False:
+            HERO.Falling = False
+            HERO.Jumping = True
+            HERO.endy = HERO.y+400
+            print(HERO.endy)
         pass
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
+        HERO.Jumping = True
     def do(HERO):
-        global jumping
-        if jumping == True and HERO.Falling == False:
-            HERO.frame = 1
-            if HERO.y < HERO.endy:
-                HERO.y += JUMP_SPEED_PPS
-            if HERO.y >= HERO.endy:
-                HERO.Falling = True
-                jumping = False
-        if jumping == False and HERO.Falling == True:
-            HERO.frame = 1
-            if HERO.y >= HERO.miny:
-                HERO.y -= JUMP_SPEED_PPS
-            if HERO.y <= HERO.miny:
-                HERO.Falling = False
-                jumping = True
-                HERO.add_event(JUMP_END)
+        if HERO.Falling == False and HERO.Jumping == True:
+            HERO.y += JUMP_SPEED_PPS
+        if HERO.y >= HERO.endy:
+            HERO.Falling = True
+            HERO.add_event(JUMP_END)
+        HERO.frame = 1
     def draw(HERO):
         if dir == -1:
             HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y)
@@ -152,7 +140,7 @@ class JumpState:
         if dir == 1:
             HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x,HERO.y, 50, 50)
             HERO.lookright = False
-        if jumping == True or HERO.Falling == True:
+        if HERO.Falling == True:
             HERO.frame = 1
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
@@ -179,9 +167,10 @@ class HERO:
         self.velocity=0
         self.levelcode = 0  #0 일반 1 커짐 2 불공격가능 3 무적
         self.die = False
-        self.endy=self.y+200
+        self.endy=self.y+400
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
+        self.Jumping = False #점프가 가능하냐?
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
@@ -197,26 +186,14 @@ class HERO:
                 print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
-        global jumping
-        if (int(mon.x) == int(self.x) and mon.y >= self.y) or (int(mon.x)+80 == int(self.x) and mon.y >= self.y):#죽음 판정
-            self.die = True
-        if self.x>=mon.x-20 and self.x<=mon.x+80 and self.y <= mon.y + 60 and self.Falling == True:# 몬스터 사망
-            mon.x=1000
-        for block in blocks:
-         if self.x>=block.x-40 and self.x<=block.x+40 and self.y >= block.y-50  and jumping == True: #벽 위로 박기
-                jumping = False
-                self.Falling = True
-                block.life -= 1
-        if self.x>=block.x and self.x<=block.x+60 and self.y <= block.y+50  and self.y >= block.y and jumping == False:#벽 위에 서기
-            self.Falling = False
-            self.miny = self.y-1
-            self.y+=3
-            self.endy = self.y + 200
-
+        if self.Falling == True:
+            self.frame = 1
+            self.y -= JUMP_SPEED_PPS
     def add_event(self, event):
         self.event_que.insert(0, event)
     def draw(self):
         self.cur_state.draw(self)
+        draw_rectangle(*self.get_bb())
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
@@ -229,3 +206,6 @@ class HERO:
     def levelup(self):
         self.levelcode +=1
         self.image=load_image(Run_Img_code[self.levelcode])
+
+    def get_bb(self):
+        return self.x - 25, self.y - 25, self.x + 25, self.y + 25

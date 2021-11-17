@@ -25,3 +25,7 @@ class Monster:
         self.image.clip_draw(int(self.frame) * 80, 0, 80, 80, self.x, self.y)
         if self.x <=-100:
             self.x=1000
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x -20, self.y - 28, self.x + 40, self.y + 44

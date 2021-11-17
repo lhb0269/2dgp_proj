@@ -2,7 +2,7 @@ from pico2d import *
 
 import game_framework
 import game_world
-
+import main_state
 PIXEL_PER_METER = (10.0/0.3)
 RUN_SPEED_KMPH = 50
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
@@ -23,3 +23,9 @@ class Fire:
         self.x += self.velocity * game_framework.frame_time*RUN_SPEED_PPS
         if self.x < 25 or self.x > 1600 - 25:
             game_world.remove_object(self)
+        if main_state.collide(self,main_state.mon):
+            main_state.mon.x = 1000
+            game_world.remove_object(self)
+
+    def get_bb(self):
+        return self.x - 5, self.y - 5, self.x + 5, self.y + 5
