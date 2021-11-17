@@ -34,8 +34,6 @@ def collide(a, b):
     if top_a < bottom_b : return False
     if bottom_a > top_b : return False
 
-    elif right_a > left_b:
-        print('오른쪽 못감 ㅅㄱ')
     return True
 
 def heroblock(a, b):
@@ -113,7 +111,7 @@ def update():
             game_object.update()
     if collide(hero, mon):
         pass
-        #hero.die = True
+        hero.die = True
     for block in blocks:
         if collide(hero,block):
             if heroblock(hero,block):
@@ -123,8 +121,7 @@ def update():
                 hero.Falling = False
     if collide(hero, floor):
         hero.Falling = False
-    if collide(hero,se):
-        print("배관")
+    #if collide(hero,se):
 
 def draw():
     clear_canvas()

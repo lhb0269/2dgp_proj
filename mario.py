@@ -201,8 +201,12 @@ class HERO:
             #     print(history[-10:])
             self.add_event(key_event)
     def fire(self):
-        fire = Fire(self.x,self.y,dir)
-        game_world.add_object(fire,1)
+        if self.lookright == True:
+            fire = Fire(self.x,self.y,-1)
+            game_world.add_object(fire,1)
+        if self.lookright == False:
+            fire = Fire(self.x, self.y, 1)
+            game_world.add_object(fire, 1)
     def levelup(self):
         self.levelcode +=1
         self.image=load_image(Run_Img_code[self.levelcode])
