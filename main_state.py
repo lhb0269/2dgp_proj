@@ -110,8 +110,8 @@ def update():
         else:
             game_object.update()
     if collide(hero, mon):
-        pass
-        hero.die = True
+        if heroblockstand(hero,mon):
+            mon.x = 1000
     for block in blocks:
         if collide(hero,block):
             if heroblock(hero,block):
@@ -121,7 +121,8 @@ def update():
                 hero.Falling = False
     if collide(hero, floor):
         hero.Falling = False
-    #if collide(hero,se):
+    if collide(hero,se):
+        hero.Falling = False
 
 def draw():
     clear_canvas()

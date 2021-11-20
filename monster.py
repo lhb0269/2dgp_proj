@@ -15,7 +15,7 @@ FRAMES_PER_ACTION = 2
 class Monster:
     def __init__(self):
         self.image = load_image('sprite.png')
-        self.x = 500
+        self.x = 700
         self.y = 62
         self.frame = 0
     def update(self):
@@ -25,7 +25,13 @@ class Monster:
         self.image.clip_draw(int(self.frame) * 80, 0, 80, 80, self.x, self.y)
         if self.x <=-100:
             self.x=1000
-        draw_rectangle(*self.get_bb())
+        draw_rectangle(*self.get_top_bb())
+        draw_rectangle(*self.get_bottom_bb())
 
     def get_bb(self):
         return self.x -20, self.y - 28, self.x + 40, self.y + 44
+
+    def get_top_bb(self):
+        return self.x - 20, self.y, self.x + 40, self.y + 40
+    def get_bottom_bb(self):
+        return self.x - 20, self.y, self.x + 40, self.y-32

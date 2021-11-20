@@ -10,7 +10,7 @@ RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 class castle:
     def __init__(self):
         self.image = load_image('castle.png')
-        self.x = 1800
+        self.x = 2400
         self.y = 140
     def update(self):
         self.x+=mario.dir/2
