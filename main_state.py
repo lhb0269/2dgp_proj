@@ -6,6 +6,7 @@ from pico2d import *
 
 import game_framework
 import title_state
+import server
 import game_world
 from mario import HERO
 from monster import Monster
@@ -13,17 +14,6 @@ from block import BLOCK
 from background import *
 
 name = "MainState"
-
-hero = None
-mon = None
-font = None
-cloud = None
-mountain = None
-woods = None
-cs = None
-se = None
-blocks = None
-floor = None
 
 def collide(a, b):
     left_a, bottom_a, right_a, top_a = a.get_bb()
@@ -59,26 +49,26 @@ def heroblockstand(a, b):
 def enter():
     global hero,mon,cloud,mountain,woods,cs,se,blocks,back,floor
     back = load_image('background.png')
-    floor = load_image('floor.png')
-    mon = Monster()
-    hero = HERO()
+    server.floor = load_image('floor.png')
+    server.mon = Monster()
+    server.hero = HERO()
 
-    cloud = CLOUDS()
-    mountain = Mountain()
-    woods = WOODS()
-    cs = castle()
-    se = sewer()
-    floor = FLOOR()
-    blocks = [BLOCK(400), BLOCK(460), BLOCK(520)]
-    game_world.add_object(cloud,0)
-    game_world.add_object(mountain,0)
-    game_world.add_object(woods,0)
-    game_world.add_object(floor,0)
-    game_world.add_object(mon,1)
-    game_world.add_object(hero,1)
-    game_world.add_object(cs,0)
-    game_world.add_object(se,0)
-    game_world.add_objects(blocks,1)
+    server.cloud = CLOUDS()
+    server.mountain = Mountain()
+    server.woods = WOODS()
+    server.cs = castle()
+    server.se = sewer()
+    server.floor = FLOOR()
+    server.blocks = [BLOCK(400), BLOCK(460), BLOCK(520)]
+    game_world.add_object(server.cloud,0)
+    game_world.add_object(server.mountain,0)
+    game_world.add_object(server.woods,0)
+    game_world.add_object(server.floor,0)
+    game_world.add_object(server.mon,1)
+    game_world.add_object(server.hero,1)
+    game_world.add_object(server.cs,0)
+    game_world.add_object(server.se,0)
+    game_world.add_objects(server.blocks,1)
 
 
 def exit():
@@ -100,30 +90,15 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
-            hero.handle_event(event)
+            server.hero.handle_event(event)
 
 
 def update():
     for game_object in game_world.all_objects():
-        if game_object == hero:
-            game_object.update(mon,blocks)
+        if game_object == server.hero:
+            game_object.update(server.mon,server.blocks)
         else:
             game_object.update()
-    if collide(hero, mon):
-        if heroblockstand(hero,mon):
-            mon.x = 1000
-    for block in blocks:
-        if collide(hero,block):
-            if heroblock(hero,block):
-                hero.Falling = True
-                block.life -= 1
-            if heroblockstand(hero, block):
-                hero.Falling = False
-    if collide(hero, floor):
-        hero.Falling = False
-    if collide(hero,se):
-        hero.Falling = False
-
 def draw():
     clear_canvas()
     back.draw(200, 200)
