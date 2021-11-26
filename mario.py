@@ -3,6 +3,8 @@ from pico2d import *
 import game_framework
 import game_world
 import main_state
+import server
+import collision
 from fire import Fire
 dir = 0
 
@@ -171,6 +173,7 @@ class HERO:
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
         self.Jumping = False #점프가 가능하냐?
+        self.parent = None
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
@@ -186,6 +189,22 @@ class HERO:
                 print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
+        for block in server.blocks:
+            if collision.collide(self,block):
+                if collision.collidebottom(self,block):
+                    self.Falling = True
+                    block.life -= 1
+                    self.add_event(JUMP_END)
+                else:
+                    self.set_parent(block)
+                    self.Falling = False
+                    break
+        if collision.collide(self,server.floor):
+            self.set_parent(server.floor)
+            self.Falling = False
+        if collision.collide(self,server.se):
+            self.set_parent(server.se)
+            self.Falling = False
         if self.Falling == True:
             self.frame = 1
             self.y -= JUMP_SPEED_PPS
@@ -202,14 +221,17 @@ class HERO:
             self.add_event(key_event)
     def fire(self):
         if self.lookright == True:
-            fire = Fire(self.x,self.y,-1)
-            game_world.add_object(fire,1)
+            server.fire = Fire(self.x,self.y,-1)
+            game_world.add_object(server.fire,1)
         if self.lookright == False:
-            fire = Fire(self.x, self.y, 1)
-            game_world.add_object(fire, 1)
+            server.fire = Fire(self.x, self.y, 1)
+            game_world.add_object(server.fire, 1)
     def levelup(self):
         self.levelcode +=1
         self.image=load_image(Run_Img_code[self.levelcode])
 
     def get_bb(self):
         return self.x - 25, self.y - 25, self.x + 25, self.y + 25
+    def set_parent(self,other):
+        self.parent = other
+        #self.x,self.y = other.x + other.BOY_X0,other.y+other.BOY_Y0

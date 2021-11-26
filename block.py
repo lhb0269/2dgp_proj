@@ -5,6 +5,7 @@ import random
 ypos_list = [250,400]
 
 class BLOCK:
+    BOY_X0, BOY_Y0 = -20, 60
     def __init__(self,xpos):
         self.x = xpos
         self.y = 250
