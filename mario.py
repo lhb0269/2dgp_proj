@@ -189,6 +189,7 @@ class HERO:
                 print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
+        #블록 충돌체크
         for block in server.blocks:
             if collision.collide(self,block):
                 if collision.collidebottom(self,block):
@@ -199,12 +200,20 @@ class HERO:
                     self.set_parent(block)
                     self.Falling = False
                     break
+        #바닥 충돌체크
         if collision.collide(self,server.floor):
             self.set_parent(server.floor)
             self.Falling = False
+        #하수구 충돌체크
         if collision.collide(self,server.se):
-            self.set_parent(server.se)
-            self.Falling = False
+            if collision.collidebottom(self,server.se):
+                if dir == 1:
+                    self.x -= -1
+                else:
+                    self.x+=-1
+            else:
+                self.set_parent(server.se)
+                self.Falling = False
         if self.Falling == True:
             self.frame = 1
             self.y -= JUMP_SPEED_PPS

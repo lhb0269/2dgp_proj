@@ -79,6 +79,11 @@ class sewer:
             self.x = -50
     def draw(self):
         self.image.clip_draw(1165,140,142,140,self.x,self.y)
-        draw_rectangle(*self.get_bb())
+        draw_rectangle(*self.get_top_bb())
+        draw_rectangle(*self.get_bottom_bb())
     def get_bb(self):
         return self.x - 71, self.y-70, self.x + 71, self.y + 70
+    def get_top_bb(self):
+        return self.x - 71, self.y+50, self.x + 71, self.y + 70
+    def get_bottom_bb(self):
+        return self.x - 71, self.y-70, self.x + 71, self.y+50
