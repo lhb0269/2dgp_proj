@@ -63,10 +63,7 @@ def handle_events():
 
 def update():
     for game_object in game_world.all_objects():
-        if game_object == server.hero:
-            game_object.update(server.mon,server.blocks)
-        else:
-            game_object.update()
+        game_object.update()
 def draw():
     clear_canvas()
     back.draw(200, 200)

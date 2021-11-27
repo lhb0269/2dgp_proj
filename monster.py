@@ -32,6 +32,6 @@ class Monster:
         return self.x -20, self.y - 28, self.x + 40, self.y + 44
 
     def get_top_bb(self):
-        return self.x - 20, self.y, self.x + 40, self.y + 40
+        return self.x - 20, self.y+30, self.x + 40, self.y + 40
     def get_bottom_bb(self):
-        return self.x - 20, self.y, self.x + 40, self.y-32
+        return self.x - 20, self.y+30, self.x + 40, self.y-32

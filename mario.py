@@ -122,7 +122,6 @@ class JumpState:
             HERO.Falling = False
             HERO.Jumping = True
             HERO.endy = HERO.y+400
-            print(HERO.endy)
         pass
     def exit(HERO,event):
         if event == SPACE:
@@ -177,7 +176,7 @@ class HERO:
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
-    def update(self,mon,blocks):
+    def update(self):
         self.cur_state.do(self)
         if len(self.event_que) > 0:
             event = self.event_que.pop()
@@ -199,7 +198,8 @@ class HERO:
                 else:
                     self.set_parent(block)
                     self.Falling = False
-                    break
+            if self.parent == block and collision.gravity(self,block):
+                self.parent = None
         #바닥 충돌체크
         if collision.collide(self,server.floor):
             self.set_parent(server.floor)
@@ -207,16 +207,30 @@ class HERO:
         #하수구 충돌체크
         if collision.collide(self,server.se):
             if collision.collidebottom(self,server.se):
-                if dir == 1:
-                    self.x -= -1
+                if self.lookright == False:
+                    self.x -= -2
                 else:
-                    self.x+=-1
+                    self.x += -2
             else:
                 self.set_parent(server.se)
                 self.Falling = False
+        else:
+            if self.parent == server.se and collision.gravity(self,server.se):
+                self.parent=None
+        #몬스터 충돌체크
+        if collision.collide(self,server.mon):
+            if collision.collidebottom(self,server.mon):
+                self.die = True
+                print("die")
+            if self.Falling == True:
+                server.mon.x = 1000
         if self.Falling == True:
             self.frame = 1
             self.y -= JUMP_SPEED_PPS
+        #중력쓰
+        if self.parent == None and self.Jumping == True:
+            self.Jumping = False
+            self.Falling = True
     def add_event(self, event):
         self.event_que.insert(0, event)
     def draw(self):
@@ -243,4 +257,3 @@ class HERO:
         return self.x - 25, self.y - 25, self.x + 25, self.y + 25
     def set_parent(self,other):
         self.parent = other
-        #self.x,self.y = other.x + other.BOY_X0,other.y+other.BOY_Y0
