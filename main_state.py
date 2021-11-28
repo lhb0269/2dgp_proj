@@ -28,6 +28,8 @@ def enter():
     server.se = sewer()
     server.floor = FLOOR()
     server.blocks = [BLOCK(400), BLOCK(460), BLOCK(520)]
+    server.flower = FLOWER()
+    server.star = STAR()
     game_world.add_object(server.cloud,0)
     game_world.add_object(server.mountain,0)
     game_world.add_object(server.woods,0)
@@ -37,6 +39,8 @@ def enter():
     game_world.add_object(server.cs,0)
     game_world.add_object(server.se,0)
     game_world.add_objects(server.blocks,1)
+    game_world.add_object(server.flower,1)
+    game_world.add_object(server.star,1)
 
 
 def exit():

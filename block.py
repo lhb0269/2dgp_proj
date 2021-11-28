@@ -1,7 +1,11 @@
 from pico2d import *
 import mario
 import random
+import game_framework
 
+TIME_PER_ACTION = 1.0
+ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
+FRAMES_PER_ACTION = 3
 ypos_list = [250,400]
 
 class BLOCK:
@@ -10,19 +14,34 @@ class BLOCK:
         self.x = xpos
         self.y = 250
         self.image = load_image('sprite.png')
+        self.image2= load_image('itembox.png')
         self.life = 3
+        self.code = 0 #블럭 종류 판별
+        self.frame = 0
+    def setbox(self):
+        self.x = random.randint(1, 5) * 60 + 900
+        self.y = ypos_list[random.randint(0, 1)]
+        self.code = random.randint(0,1)
+        if self.code == 0:
+            self.life = 3
+        elif self.code == 1:
+            self.life = 1
     def update(self):
         self.x += (mario.dir / 2)
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
         if self.x < -100:
             self.x = 1000
+            self.setbox()
         if self.x > 1100:
             self.x = -50
-        if self.life ==0:
-            self.x =random.randint(1,5)*60+900
-            self.y = ypos_list[random.randint(0,1)]
-            self.life=3
+            self.setbox()
+        if self.life == 0:
+            self.setbox()
     def draw(self):
-        self.image.clip_draw(950, 500, 60, 53, self.x, self.y)
+        if self.code == 0:
+            self.image.clip_draw(950, 500, 60, 53, self.x, self.y)
+        else:
+            self.image2.clip_draw(33*int(self.frame),0,32,35,self.x,self.y,60,60)
         draw_rectangle(*self.get_top_bb())
         draw_rectangle(*self.get_bottom_bb())
     def get_bb(self):

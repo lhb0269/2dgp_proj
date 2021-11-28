@@ -9,3 +9,5 @@ se = None
 blocks = None
 floor = None
 fire = None
+flower = None
+star = None

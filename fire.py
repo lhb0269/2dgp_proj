@@ -27,6 +27,7 @@ class Fire:
             game_world.remove_object(self)
         if collision.collide(self,server.mon):
             server.mon.x = 1000
+            server.mon.dir = -1
             game_world.remove_object(self)
 
     def get_bb(self):

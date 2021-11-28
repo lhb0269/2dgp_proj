@@ -1,9 +1,12 @@
 from pico2d import *
+
+import collision
 import mario
 import game_framework
+import server
 
 PIXEL_PER_METER = (10.0/0.3)
-RUN_SPEED_KMPH = 0.05
+RUN_SPEED_KMPH = 0.02
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -18,9 +21,12 @@ class Monster:
         self.x = 700
         self.y = 62
         self.frame = 0
+        self.dir = 1
     def update(self):
         self.frame = (self.frame+FRAMES_PER_ACTION*ACTION_PER_TIME*game_framework.frame_time)%2
-        self.x += (mario.dir / 2) -RUN_SPEED_PPS
+        self.x -= (self.dir)*RUN_SPEED_PPS
+        if collision.collide(self,server.se):
+            pass
     def draw(self):
         self.image.clip_draw(int(self.frame) * 80, 0, 80, 80, self.x, self.y)
         if self.x <=-100:

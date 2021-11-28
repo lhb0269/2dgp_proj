@@ -1,12 +1,16 @@
 from pico2d import *
 
 import mario
-import mario
+import game_framework
 PIXEL_PER_METER = (10.0/0.3)
 RUN_SPEED_KMPH = 0.08
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
+FRAMES_PER_ACTION = 4
 class castle:
     def __init__(self):
         self.image = load_image('castle.png')
@@ -68,7 +72,7 @@ class WOODS:
         self.image.clip_draw(22, 142, 290, 70, self.x,self.y)
 class sewer:
     def __init__(self):
-        self.x = 750
+        self.x = 200
         self.y = 110
         self.image = load_image('sprite.png')
     def update(self):
@@ -87,3 +91,33 @@ class sewer:
         return self.x - 71, self.y+50, self.x + 71, self.y + 70
     def get_bottom_bb(self):
         return self.x - 71, self.y-70, self.x + 71, self.y+50
+
+class FLOWER:
+    def __init__(self):
+        self.x = 100
+        self.y = 110
+        self.image = load_image('flower.png')
+        self.frame = 0
+        self.parent = None
+    def update(self):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+    def draw(self):
+        self.image.clip_draw(25*int(self.frame),0,25,25,self.x,self.y,50,50)
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
+
+class STAR:
+    def __init__(self):
+        self.x = 150
+        self.y = 110
+        self.image = load_image('star.png')
+        self.frame = 0
+        self.parent = None
+    def update(self):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+    def draw(self):
+        self.image.clip_draw(25*int(self.frame),0,25,29,self.x,self.y,50,50)
+        draw_rectangle(*self.get_bb())
+    def get_bb(self):
+        return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
