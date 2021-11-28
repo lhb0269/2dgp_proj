@@ -19,17 +19,18 @@ JUMP_SPEED_MPM = (JUMP_SPEED_KMPH * 1000.0 / 60.0)
 JUMP_SPEED_MPS = (JUMP_SPEED_MPM/60.0)
 JUMP_SPEED_PPS = (JUMP_SPEED_MPS * PIXEL_PER_METER)
 
-TIME_PER_ACTION = 0.5
+TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
 LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END,SPACE,LEVELUP = range(9)
 event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE','LEVEL_UP'
-Run_Img_code = 'mario_run.png','big_mario_run.png'
-stand_img_code = 'mario_stand.png'
+Run_Img_code = 'mario_run.png','big_mario_run.png','star_run.png'
+stand_img_code = 'mario_stand.png','mario_kid_star.png','mario_man_star.png'
 
-img_ylist=50,90
+img_size_list=50,90,50
+stand_img_list = 50,50,90
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
     (SDL_KEYDOWN,SDLK_d):RIGHT_DOWN,
@@ -65,10 +66,10 @@ class IdleState:
 
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y)
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y,img_size_list[HERO.levelcode],img_size_list[HERO.levelcode])
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
             HERO.lookright = False
         if  HERO.Falling == True:
             HERO.frame = 1
@@ -76,9 +77,9 @@ class IdleState:
             HERO.image2 = load_image('mario_dead.png')
             JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
-            HERO.image2.draw(HERO.x, HERO.y)
+            HERO.image2.draw(HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
         if HERO.lookright == False and dir == 0:
-            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
 class RunState:
     def enter(HERO, event):
         global dir
@@ -104,10 +105,10 @@ class RunState:
 
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 100, HERO.x, HERO.y,50,50)
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 100, HERO.x, HERO.y,img_size_list[HERO.levelcode],img_size_list[HERO.levelcode])
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 100, 2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 100, 2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
             HERO.lookright = False
         if HERO.die == True:
             HERO.image2 = load_image('mario_dead.png')
@@ -115,7 +116,7 @@ class RunState:
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
-            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, stand_img_list[HERO.levelcode], stand_img_list[HERO.levelcode])
 class JumpState:
     def enter(HERO,event):
         if HERO.Jumping == False:
@@ -136,17 +137,17 @@ class JumpState:
         HERO.frame = 1
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y)
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y,img_size_list[HERO.levelcode],img_size_list[HERO.levelcode])
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x,HERO.y, 50, 50)
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x,HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
             HERO.lookright = False
         if HERO.Falling == True:
             HERO.frame = 1
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
-            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, 50, 50)
+            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
 
 next_state_table = {
     JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState,SPACE:JumpState,},
@@ -235,7 +236,7 @@ class HERO:
         self.event_que.insert(0, event)
     def draw(self):
         self.cur_state.draw(self)
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
@@ -252,6 +253,7 @@ class HERO:
     def levelup(self):
         self.levelcode +=1
         self.image=load_image(Run_Img_code[self.levelcode])
+        self.image2 = load_image(stand_img_code[self.levelcode])
 
     def get_bb(self):
         return self.x - 25, self.y - 25, self.x + 25, self.y + 25
