@@ -24,7 +24,7 @@ class Monster:
         self.dir = 1
     def update(self):
         self.frame = (self.frame+FRAMES_PER_ACTION*ACTION_PER_TIME*game_framework.frame_time)%2
-        self.x -= (self.dir)*RUN_SPEED_PPS
+        self.x -= (self.dir)-RUN_SPEED_PPS
         if collision.collide(self,server.se):
             pass
     def draw(self):
