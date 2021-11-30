@@ -1,12 +1,22 @@
 from pico2d import *
 
+import collision
+import game_world
 import mario
 import game_framework
+import server
+
 PIXEL_PER_METER = (10.0/0.3)
 RUN_SPEED_KMPH = 0.08
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+PIXEL_PER_METER = (10.0/0.3)
+OBJ_SPEED_KMPH = 2.0
+OBJ_SPEED_MPM = (OBJ_SPEED_KMPH * 1000.0 / 60.0)
+OBJ_SPEED_MPS = (OBJ_SPEED_MPM/60.0)
+OBJ_SPEED_PPS = (OBJ_SPEED_MPS * PIXEL_PER_METER)
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
@@ -108,14 +118,21 @@ class FLOWER:
         return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
 
 class STAR:
-    def __init__(self):
-        self.x = 150
-        self.y = 110
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.endy = y+50
         self.image = load_image('star.png')
         self.frame = 0
         self.parent = None
     def update(self):
+        self.x += (mario.dir / 2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        if self.y < self.endy:
+            self.y += OBJ_SPEED_PPS * game_framework.frame_time
+            print(self.endy,self.y)
+        if collision.collide(server.hero,self):
+            game_world.remove_object(self)
     def draw(self):
         self.image.clip_draw(25*int(self.frame),0,25,29,self.x,self.y,50,50)
         draw_rectangle(*self.get_bb())

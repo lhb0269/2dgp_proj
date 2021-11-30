@@ -195,6 +195,7 @@ class HERO:
                 if collision.collidebottom(self,block):
                     self.Falling = True
                     block.life -= 1
+                    block.make_obj()
                     self.add_event(JUMP_END)
                 else:
                     self.set_parent(block)

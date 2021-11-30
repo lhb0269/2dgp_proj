@@ -1,7 +1,12 @@
 from pico2d import *
+
+import game_world
 import mario
 import random
 import game_framework
+import server
+
+from background import STAR
 
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
@@ -16,7 +21,8 @@ class BLOCK:
         self.image = load_image('sprite.png')
         self.image2= load_image('itembox.png')
         self.life = 3
-        self.code = 0 #블럭 종류 판별
+        self.code = 1 #블럭 종류 판별
+        self.make = False
         self.frame = 0
     def setbox(self):
         self.x = random.randint(1, 5) * 60 + 900
@@ -25,7 +31,7 @@ class BLOCK:
         if self.code == 0:
             self.life = 3
         elif self.code == 1:
-            self.life = 1
+            self.life = 2
     def update(self):
         self.x += (mario.dir / 2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
@@ -50,3 +56,9 @@ class BLOCK:
         return self.x - 30, self.y, self.x + 30, self.y + 28
     def get_bottom_bb(self):
         return self.x - 30, self.y-28, self.x + 30, self.y
+    def make_obj(self):
+        if self.code == 1 and self.life == 1 and self.make == False:
+            server.star=STAR(self.x,self.y)
+            game_world.add_object(server.star,1)
+            self.make=True
+
