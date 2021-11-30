@@ -7,7 +7,7 @@ import game_framework
 import server
 
 from background import STAR
-
+from background import FLOWER
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 3
@@ -24,6 +24,7 @@ class BLOCK:
         self.code = 1 #블럭 종류 판별
         self.make = False
         self.frame = 0
+        self.objectcode=0
     def setbox(self):
         self.x = random.randint(1, 5) * 60 + 900
         self.y = ypos_list[random.randint(0, 1)]
@@ -58,7 +59,14 @@ class BLOCK:
         return self.x - 30, self.y-28, self.x + 30, self.y
     def make_obj(self):
         if self.code == 1 and self.life == 1 and self.make == False:
-            server.star=STAR(self.x,self.y)
-            game_world.add_object(server.star,1)
-            self.make=True
+            self.objectcode = random.randint(0,1)
+            if self.objectcode == 0:
+                server.star=STAR(self.x,self.y,self)
+                game_world.add_object(server.star,1)
+                self.make=True
+            elif self.objectcode == 1:
+                server.flower = FLOWER(self.x, self.y,self)
+                game_world.add_object(server.flower, 1)
+                self.make = True
+            self.code=0
 

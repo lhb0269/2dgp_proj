@@ -103,14 +103,22 @@ class sewer:
         return self.x - 71, self.y-70, self.x + 71, self.y+50
 
 class FLOWER:
-    def __init__(self):
-        self.x = 100
-        self.y = 110
+    def __init__(self,x,y,block):
+        self.x = x
+        self.y = y
+        self.endy = y + 50
         self.image = load_image('flower.png')
         self.frame = 0
-        self.parent = None
+        self.parent = block
     def update(self):
+        self.x += (mario.dir/2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        if self.y < self.endy:
+            self.y += OBJ_SPEED_PPS * game_framework.frame_time
+            print(self.endy, self.y)
+        if collision.collide(server.hero,self) or self.x < -100 or self.x > 1100:
+            self.parent.make = False
+            game_world.remove_object(self)
     def draw(self):
         self.image.clip_draw(25*int(self.frame),0,25,25,self.x,self.y,50,50)
         draw_rectangle(*self.get_bb())
@@ -118,20 +126,21 @@ class FLOWER:
         return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
 
 class STAR:
-    def __init__(self,x,y):
+    def __init__(self,x,y,block):
         self.x = x
         self.y = y
         self.endy = y+50
         self.image = load_image('star.png')
         self.frame = 0
-        self.parent = None
+        self.parent = block
     def update(self):
         self.x += (mario.dir / 2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.y < self.endy:
             self.y += OBJ_SPEED_PPS * game_framework.frame_time
             print(self.endy,self.y)
-        if collision.collide(server.hero,self):
+        if collision.collide(server.hero,self) or self.x < -100 or self.x > 1100:
+            self.parent.make=False
             game_world.remove_object(self)
     def draw(self):
         self.image.clip_draw(25*int(self.frame),0,25,29,self.x,self.y,50,50)
