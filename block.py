@@ -62,11 +62,11 @@ class BLOCK:
             self.objectcode = random.randint(0,1)
             if self.objectcode == 0:
                 server.star=STAR(self.x,self.y,self)
-                game_world.add_object(server.star,1)
+                game_world.add_object(server.star,0)
                 self.make=True
             elif self.objectcode == 1:
                 server.flower = FLOWER(self.x, self.y,self)
-                game_world.add_object(server.flower, 1)
+                game_world.add_object(server.flower, 0)
                 self.make = True
             self.code=0
 
