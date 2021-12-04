@@ -24,7 +24,7 @@ ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
-LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_UP,JUMP_END,SPACE,LEVELUP = range(9)
+LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_END,SPACE,LEVELUP = range(8)
 event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE','LEVEL_UP'
 Run_Img_code = 'mario_run.png','big_mario_run.png','star_run.png'
 stand_img_code = 'mario_stand.png','mario_kid_star.png','mario_man_star.png'
@@ -37,7 +37,6 @@ key_event_table ={
     (SDL_KEYUP,SDLK_a):LEFT_UP,
     (SDL_KEYUP,SDLK_d):RIGHT_UP,
     (SDL_KEYDOWN,SDLK_w):JUMP_DOWN,
-    (SDL_KEYUP,SDLK_w):JUMP_UP,
     (SDL_KEYDOWN,SDLK_SPACE):SPACE,
     (SDL_KEYDOWN,SDLK_r):LEVELUP
 }
@@ -54,6 +53,9 @@ class IdleState:
                 dir=0
             elif event == RIGHT_UP:
                 dir=0
+            elif event == JUMP_DOWN and HERO.Falling == False:
+                HERO.Jumping = True
+                HERO.Falling = False
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
@@ -73,9 +75,9 @@ class IdleState:
             HERO.lookright = False
         if  HERO.Falling == True:
             HERO.frame = 1
-        if HERO.die == True:
-            HERO.image2 = load_image('mario_dead.png')
-            JumpState.do(HERO)
+        # if HERO.die == True:
+        #     HERO.image2 = load_image('mario_dead.png')
+        #     JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
         if HERO.lookright == False and dir == 0:
@@ -92,6 +94,9 @@ class RunState:
                 dir=0
             elif event == RIGHT_UP:
                 dir=0
+            elif event == JUMP_DOWN and HERO.Falling == False:
+                HERO.Jumping = True
+                HERO.Falling = False
     def exit(HERO,event):
         if event == SPACE:
             HERO.fire()
@@ -110,50 +115,18 @@ class RunState:
         if dir == 1:
             HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 100, 2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
             HERO.lookright = False
-        if HERO.die == True:
-            HERO.image2 = load_image('mario_dead.png')
-            JumpState.do(HERO)
+        # if HERO.die == True:
+        #     HERO.image2 = load_image('mario_dead.png')
+        #     JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
             HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, stand_img_list[HERO.levelcode], stand_img_list[HERO.levelcode])
-class JumpState:
-    def enter(HERO,event):
-        if HERO.Jumping == False:
-            HERO.Falling = False
-            HERO.Jumping = True
-            HERO.endy = HERO.y+400
-        pass
-    def exit(HERO,event):
-        if event == SPACE:
-            HERO.fire()
-        HERO.Jumping = True
-    def do(HERO):
-        if HERO.Falling == False and HERO.Jumping == True:
-            HERO.y += JUMP_SPEED_PPS
-        if HERO.y >= HERO.endy:
-            HERO.Falling = True
-            HERO.add_event(JUMP_END)
-        HERO.frame = 1
-    def draw(HERO):
-        if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y,img_size_list[HERO.levelcode],img_size_list[HERO.levelcode])
-            HERO.lookright = True
-        if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x,HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
-            HERO.lookright = False
-        if HERO.Falling == True:
-            HERO.frame = 1
-        if HERO.lookright == True and dir == 0:
-            HERO.image2.draw(HERO.x, HERO.y)
-        if HERO.lookright == False and dir == 0:
-            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
 
 next_state_table = {
-    JumpState:{JUMP_DOWN:JumpState,JUMP_UP:JumpState,RIGHT_DOWN:RunState,LEFT_DOWN:RunState,LEFT_UP:RunState,RIGHT_UP:RunState,JUMP_END:RunState,SPACE:JumpState,},
-    IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:JumpState,JUMP_UP:JumpState,SPACE:IdleState,JUMP_END:IdleState
+     IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:IdleState,SPACE:IdleState,JUMP_END:IdleState
                ,LEVELUP:IdleState},
-    RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:JumpState,JUMP_UP:RunState,SPACE:RunState,JUMP_END:RunState,
+    RunState:{LEFT_UP:IdleState,RIGHT_UP:IdleState,LEFT_DOWN:IdleState,RIGHT_DOWN:IdleState,JUMP_DOWN:RunState,SPACE:RunState,JUMP_END:RunState,
               LEVELUP:RunState}
 }
 class HERO:
@@ -169,7 +142,7 @@ class HERO:
         self.velocity=0
         self.levelcode = 0  #0 일반 1 커짐 2 불공격가능 3 무적
         self.die = False
-        self.endy=self.y+400
+        self.endy=self.y+200
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
         self.Jumping = False #점프가 가능하냐?
@@ -189,6 +162,9 @@ class HERO:
                 print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
                 exit(-1)
             self.cur_state.enter(self, event)
+        if self.Jumping == True:
+            self.frame = 1
+            self.Jump()
         #블록 충돌체크
         for block in server.blocks:
             if collision.collide(self,block):
@@ -200,12 +176,16 @@ class HERO:
                 else:
                     self.set_parent(block)
                     self.Falling = False
+                    self.Jumping = False
+                    self.endy = self.y + 200
             if self.parent == block and collision.gravity(self,block):
                 self.parent = None
         #바닥 충돌체크
         if collision.collide(self,server.floor):
             self.set_parent(server.floor)
             self.Falling = False
+            self.Jumping = False
+            self.endy = self.y + 200
         #하수구 충돌체크
         if collision.collide(self,server.se):
             if collision.collidebottom(self,server.se):
@@ -216,6 +196,8 @@ class HERO:
             else:
                 self.set_parent(server.se)
                 self.Falling = False
+                self.Jumping = False
+                self.endy = self.y + 200
         else:
             if self.parent == server.se and collision.gravity(self,server.se):
                 self.parent=None
@@ -230,7 +212,7 @@ class HERO:
             self.frame = 1
             self.y -= JUMP_SPEED_PPS
         #중력쓰
-        if self.parent == None and self.Jumping == True:
+        if self.parent == None and self.Jumping == False:
             self.Jumping = False
             self.Falling = True
     def add_event(self, event):
@@ -260,3 +242,9 @@ class HERO:
         return self.x - 25, self.y - 25, self.x + 25, self.y + 25
     def set_parent(self,other):
         self.parent = other
+    def Jump(self):
+        if self.Falling == False and self.Jumping == True:
+            self.y += JUMP_SPEED_PPS
+        if self.y >= self.endy:
+            self.Falling = True
+            self.Jumping = False
