@@ -11,16 +11,17 @@ from background import FLOWER
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 3
-ypos_list = [250,400]
+ypos_list = [200,300]
 
 class BLOCK:
     BOY_X0, BOY_Y0 = -20, 60
     def __init__(self,xpos):
         self.x = xpos
-        self.y = 250
+        self.y = 200
         self.image = load_image('sprite.png')
         self.image2= load_image('itembox.png')
-        self.life = 3
+        self.image3= load_image('emptyblock.png')
+        self.life = 2
         self.code = 1 #블럭 종류 판별
         self.make = False
         self.frame = 0
@@ -47,10 +48,10 @@ class BLOCK:
     def draw(self):
         if self.code == 0:
             self.image.clip_draw(950, 500, 60, 53, self.x, self.y)
-        else:
+        elif self.code == 1:
             self.image2.clip_draw(33*int(self.frame),0,32,35,self.x,self.y,60,60)
-        draw_rectangle(*self.get_top_bb())
-        draw_rectangle(*self.get_bottom_bb())
+        elif self.code == 2:
+            self.image3.clip_draw(0, 0, 35, 35, self.x, self.y,60,60)
     def get_bb(self):
         return self.x -30, self.y - 26, self.x + 30, self.y + 26
     def get_top_bb(self):
@@ -68,5 +69,7 @@ class BLOCK:
                 server.flower = FLOWER(self.x, self.y,self)
                 game_world.add_object(server.flower, 0)
                 self.make = True
-            self.code=0
+            self.code=2
+    def getXpos(self):
+        return self.x
 

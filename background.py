@@ -93,14 +93,12 @@ class sewer:
             self.x = -50
     def draw(self):
         self.image.clip_draw(1165,140,142,140,self.x,self.y)
-        draw_rectangle(*self.get_top_bb())
-        draw_rectangle(*self.get_bottom_bb())
     def get_bb(self):
         return self.x - 71, self.y-70, self.x + 71, self.y + 70
     def get_top_bb(self):
-        return self.x - 71, self.y+50, self.x + 71, self.y + 70
+        return self.x - 71, self.y+60, self.x + 71, self.y + 70
     def get_bottom_bb(self):
-        return self.x - 71, self.y-70, self.x + 71, self.y+50
+        return self.x - 71, self.y-70, self.x + 71, self.y+60
 
 class FLOWER:
     def __init__(self,x,y,block):
@@ -113,15 +111,15 @@ class FLOWER:
     def update(self):
         self.x += (mario.dir/2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        if self.y < self.endy:
+        if self.y < self.endy and self.x == self.parent.getXpos():
             self.y += OBJ_SPEED_PPS * game_framework.frame_time
-            print(self.endy, self.y)
         if collision.collide(server.hero,self) or self.x < -100 or self.x > 1100:
             self.parent.make = False
             game_world.remove_object(self)
+        if self.x != self.parent.getXpos():
+            self.y -= OBJ_SPEED_PPS * game_framework.frame_time*2
     def draw(self):
         self.image.clip_draw(25*int(self.frame),0,25,25,self.x,self.y,50,50)
-        draw_rectangle(*self.get_bb())
     def get_bb(self):
         return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
 
@@ -136,14 +134,14 @@ class STAR:
     def update(self):
         self.x += (mario.dir / 2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        if self.y < self.endy:
+        if self.y < self.endy and self.x == self.parent.getXpos():
             self.y += OBJ_SPEED_PPS * game_framework.frame_time
-            print(self.endy,self.y)
-        if collision.collide(server.hero,self) or self.x < -100 or self.x > 1100:
-            self.parent.make=False
+        if collision.collide(server.hero, self) or self.x < -100 or self.x > 1100:
+            self.parent.make = False
             game_world.remove_object(self)
+        if self.x != self.parent.getXpos():
+            self.y -= OBJ_SPEED_PPS * game_framework.frame_time*2
     def draw(self):
         self.image.clip_draw(25*int(self.frame),0,25,29,self.x,self.y,50,50)
-        draw_rectangle(*self.get_bb())
     def get_bb(self):
         return self.x - 25,self.y - 25,self.x + 25 , self.y + 25

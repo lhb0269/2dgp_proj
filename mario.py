@@ -26,10 +26,11 @@ FRAMES_PER_ACTION = 8
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
 LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_END,SPACE,LEVELUP = range(8)
 event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE','LEVEL_UP'
-Run_Img_code = 'mario_run.png','big_mario_run.png','star_run.png'
+Run_Img_code = 'mario_run.png','star_run.png','big_mario_run.png'
 stand_img_code = 'mario_stand.png','mario_kid_star.png','mario_man_star.png'
 
-img_size_list=50,90,50
+img_size_xlist=50,50,50
+img_size_ylist=50,50,100
 stand_img_list = 50,50,90
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
@@ -68,10 +69,10 @@ class IdleState:
 
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 50, HERO.x, HERO.y,img_size_list[HERO.levelcode],img_size_list[HERO.levelcode])
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], HERO.x, HERO.y,img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode])
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 50, 2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y, img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
             HERO.lookright = False
         if  HERO.Falling == True:
             HERO.frame = 1
@@ -110,10 +111,10 @@ class RunState:
 
     def draw(HERO):
         if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, 50, 100, HERO.x, HERO.y,img_size_list[HERO.levelcode],img_size_list[HERO.levelcode])
+            HERO.image.clip_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], HERO.x, HERO.y,img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode])
             HERO.lookright = True
         if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, 50, 100, 2 * 3.14, 'h', HERO.x, HERO.y, img_size_list[HERO.levelcode], img_size_list[HERO.levelcode])
+            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y, img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
             HERO.lookright = False
         # if HERO.die == True:
         #     HERO.image2 = load_image('mario_dead.png')
@@ -136,7 +137,7 @@ class HERO:
         self.image2 = load_image('mario_stand.png')
         self.die_image = load_image('mario_dead.png')
         self.x = 400
-        self.y = 62
+        self.y = 68
         self.miny = 62
         self.frame = 0
         self.velocity=0
@@ -190,9 +191,9 @@ class HERO:
         if collision.collide(self,server.se):
             if collision.collidebottom(self,server.se):
                 if self.lookright == False:
-                    self.x -= -2
+                    self.x -= -(RUN_SPEED_PPS/30)
                 else:
-                    self.x += -2
+                    self.x += -(RUN_SPEED_PPS/30)
             else:
                 self.set_parent(server.se)
                 self.Falling = False
@@ -201,13 +202,14 @@ class HERO:
         else:
             if self.parent == server.se and collision.gravity(self,server.se):
                 self.parent=None
-        #몬스터 충돌체크
-        if collision.collide(self,server.mon):
-            if collision.collidebottom(self,server.mon):
-                self.die = True
-                print("die")
-            if self.Falling == True:
-                server.mon.x = 1000
+        for mon in server.mon:
+            #몬스터 충돌체크
+            if collision.collide(self,mon):
+                if collision.collidebottom(self,mon) and mon.die != True:
+                    self.die = True
+                    print("die")
+                if self.Falling == True:
+                    mon.die = True
         if self.Falling == True:
             self.frame = 1
             self.y -= JUMP_SPEED_PPS

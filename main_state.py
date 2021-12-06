@@ -18,7 +18,7 @@ def enter():
     global hero,mon,cloud,mountain,woods,cs,se,blocks,back,floor
     back = load_image('background.png')
     server.floor = load_image('floor.png')
-    server.mon = Monster()
+    server.mon = [Monster(800),Monster(900),Monster(1000)]
     server.hero = HERO()
 
     server.cloud = CLOUDS()
@@ -32,7 +32,7 @@ def enter():
     game_world.add_object(server.mountain,0)
     game_world.add_object(server.woods,0)
     game_world.add_object(server.floor,0)
-    game_world.add_object(server.mon,1)
+    game_world.add_objects(server.mon,1)
     game_world.add_object(server.hero,1)
     game_world.add_object(server.cs,0)
     game_world.add_object(server.se,0)
