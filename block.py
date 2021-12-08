@@ -9,6 +9,7 @@ import server
 from background import STAR
 from background import FLOWER
 from background import COIN
+from background import MUSHROOM
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 3
@@ -23,21 +24,24 @@ class BLOCK:
         self.image2= load_image('itembox.png')
         self.image3= load_image('emptyblock.png')
         self.life = 2
-        self.code = 1 #블럭 종류 판별
+        self.code = random.randint(0,1) #블럭 종류 판별
         self.make = False
         self.frame = 0
         self.objectcode=0
     def setbox(self):
-        self.x = random.randint(15, 18) * 60
-        if self.x > server.se.x-71 and self.x < server.se.x+71:
-            self.x = random.randint(1, 5) * 30 + 900
-        self.y = ypos_list[random.randint(0, 1)]
-        self.code = random.randint(0,1)
-        if self.code == 0:
-            self.life = 3
-        elif self.code == 1:
-            self.life = 2
-        self.make = False
+        if server.time<30.0:
+            self.x = random.randint(15, 20) * 60
+            if self.x > server.se.x-71 and self.x < server.se.x+71:
+                self.x = random.randint(15, 20) * 60
+            self.y = ypos_list[random.randint(0, 1)]
+            self.code = random.randint(0,1)
+            if self.code == 0:
+                self.life = 3
+            elif self.code == 1:
+                self.life = 2
+            self.make = False
+        else:
+            self.setypos(1000)
     def update(self):
         self.x += (mario.dir / 2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
@@ -73,6 +77,10 @@ class BLOCK:
                 server.flower = FLOWER(self.x, self.y,self)
                 game_world.add_object(server.flower, 0)
                 self.make = True
+            elif self.objectcode ==2:
+                server.mush = MUSHROOM(self.x,self.y,self)
+                game_world.add_object(server.mush,0)
+                self.make = True
             else:
                 server.coin = COIN(self.x, self.y, self)
                 game_world.add_object(server.coin, 0)
@@ -80,4 +88,5 @@ class BLOCK:
             self.code=2
     def getXpos(self):
         return self.x
-
+    def setypos(self,y):
+        self.y = y

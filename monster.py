@@ -39,23 +39,80 @@ class Monster:
         else:
             self.y -= RUN_SPEED_PPS*2
             if self.y <0:
+                server.score += 100
                 self.initialize()
+        if self.x <= -100:
+            self.initialize()
+        if self.x > 2000:
+            self.initialize()
     def draw(self):
         if self.die == True:
             self.image.clip_composite_draw(80, 0, 80, 80, 2 * 3.14, 'v', self.x, self.y,80,80)
         else:
             self.image.clip_draw(int(self.frame) * 80, 0, 80, 80, self.x, self.y)
-        if self.x <=-100:
-            self.x=1000
-
     def get_bb(self):
         return self.x -20, self.y - 28, self.x + 40, self.y + 44
 
     def get_top_bb(self):
-        return self.x - 20, self.y+30, self.x + 40, self.y + 40
+        return self.x - 20, self.y+35, self.x + 40, self.y + 40
     def get_bottom_bb(self):
-        return self.x - 20, self.y+30, self.x + 40, self.y-32
+        return self.x - 20, self.y+35, self.x + 40, self.y-32
     def initialize(self):
+        if server.time<40.0:
+            self.die = False
+            self.x = 900
+            self.y=62
+            self.setypos(1000)
+    def setypos(self,y):
+        self.y = y
+
+class TURTLE:
+    def __init__(self, x):
+        self.image = load_image('turtle.png')
+        self.x = x
+        self.y = 62
+        self.dir = 1
         self.die = False
-        self.x = random.randint(700,1000)
-        self.y=62
+        self.diesound = load_wav('enemy_die.wav')
+        self.diesound.set_volume(64)
+
+    def update(self):
+        if self.die == False:
+            if collision.collide(self, server.se):
+                self.dir *= -1
+                self.x -= self.dir
+            else:
+                self.x -= RUN_SPEED_PPS * self.dir
+        else:
+            self.y -= RUN_SPEED_PPS * 2
+            if self.y < 0:
+                server.score += 100
+                self.initialize()
+        if self.x <= -100:
+            self.initialize()
+        if self.x > 2000:
+            self.initialize()
+    def draw(self):
+        if self.die == True:
+            self.image.clip_composite_draw(0, 0, 50, 50, 2 * 3.14, 'v', self.x, self.y, 50, 50)
+        else:
+            if self.dir == 1:
+                self.image.clip_composite_draw(0, 0, 50, 50, 2 * 3.14, 'h', self.x, self.y, 50, 50)
+            else:
+                self.image.clip_draw(0,0,50,50,self.x,self.y)
+    def get_bb(self):
+        return self.x - 25, self.y - 25, self.x + 25, self.y + 25
+
+    def get_top_bb(self):
+        return self.x - 25, self.y + 20, self.x + 25, self.y + 25
+
+    def get_bottom_bb(self):
+        return self.x - 25, self.y + 20, self.x + 25, self.y - 25
+
+    def initialize(self):
+        if server.time < 40.0:
+            self.die = False
+            self.x = 1000
+            self.y = 62
+    def setypos(self,y):
+        self.y = y

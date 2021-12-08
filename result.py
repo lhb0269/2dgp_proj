@@ -1,18 +1,18 @@
 import game_framework
-import main_state
+import title_state
 import server
 from pico2d import *
 
 
-name = "TitleState"
+name = "ResultState"
 image = None
 
 
 def enter():
     global image
-    image = load_image('title.png')
-    server.score = 0
-    server.time = 0
+    image = load_image('result.png')
+    server.scorefont = load_font('ENCR10B.TTF', 16)
+    server.timefont = load_font('ENCR10B.TTF', 16)
 
 def exit():
     global image
@@ -25,21 +25,18 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         else:
+
             if ( event.type,event.key) == (SDL_KEYDOWN,SDLK_ESCAPE):
                 game_framework.quit()
             elif (event.type,event.key) == (SDL_KEYDOWN, SDLK_SPACE):
-                game_framework .change_state(main_state)
+                game_framework .change_state(title_state)
 def draw():
     clear_canvas()
     image.draw(400,300)
+    server.timefont.draw(300, 450, 'Time : %3.1f' % server.time, (255, 255, 0))
+    server.scorefont.draw(300, 350, 'Score : %d' % server.score, (255, 255, 0))
+
     update_canvas()
-
-
-
-
-
-
-
 def update():
     pass
 

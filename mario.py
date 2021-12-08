@@ -5,6 +5,7 @@ import game_world
 import main_state
 import server
 import collision
+import result
 from fire import Fire
 dir = 0
 
@@ -60,8 +61,9 @@ class IdleState:
                 HERO.Falling = False
     def exit(HERO,event):
         if event == SPACE:
-            HERO.firesound.play()
-            HERO.fire()
+            if HERO.levelcode == 2:
+                HERO.firesound.play()
+                HERO.fire()
         if event == LEVELUP:
             HERO.levelup()
             print('level')
@@ -70,18 +72,21 @@ class IdleState:
         HERO.frame = (HERO.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
 
     def draw(HERO):
-        if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], HERO.x, HERO.y,img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode])
-            HERO.lookright = True
-        if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y, img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
-            HERO.lookright = False
-        if  HERO.Falling == True:
-            HERO.frame = 1
-        if HERO.lookright == True and dir == 0:
-            HERO.image2.draw(HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
-        if HERO.lookright == False and dir == 0:
-            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
+        if HERO.die == True:
+            HERO.die_image.clip_draw(0, 0, 63, 57, HERO.x, HERO.y)
+        else:
+            if dir == -1:
+                HERO.image.clip_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], HERO.x, HERO.y,img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode])
+                HERO.lookright = True
+            if dir == 1:
+                HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y, img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
+                HERO.lookright = False
+            if  HERO.Falling == True:
+                HERO.frame = 1
+            if HERO.lookright == True and dir == 0:
+                HERO.image2.draw(HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
+            if HERO.lookright == False and dir == 0:
+                HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
 class RunState:
     def enter(HERO, event):
         global dir
@@ -100,8 +105,9 @@ class RunState:
                 HERO.Falling = False
     def exit(HERO,event):
         if event == SPACE:
-            HERO.firesound.play()
-            HERO.fire()
+            if HERO.levelcode == 2:
+                HERO.firesound.play()
+                HERO.fire()
         if event == LEVELUP:
             HERO.levelup()
             print('level')
@@ -111,16 +117,26 @@ class RunState:
         HERO.x =clamp(25,HERO.x,1600-25)
 
     def draw(HERO):
-        if dir == -1:
-            HERO.image.clip_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], HERO.x, HERO.y,img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode])
-            HERO.lookright = True
-        if dir == 1:
-            HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y, img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
-            HERO.lookright = False
-        if HERO.lookright == True and dir == 0:
-            HERO.image2.draw(HERO.x, HERO.y)
-        if HERO.lookright == False and dir == 0:
-            HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, stand_img_list[HERO.levelcode], stand_img_list[HERO.levelcode])
+        if HERO.die == True:
+            HERO.die_image.clip_draw(0, 0, 63, 57, HERO.x, HERO.y)
+        else:
+            if dir == -1:
+                HERO.image.clip_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],
+                                     img_size_ylist[HERO.levelcode], HERO.x, HERO.y, img_size_xlist[HERO.levelcode],
+                                     img_size_ylist[HERO.levelcode])
+                HERO.lookright = True
+            if dir == 1:
+                HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],
+                                               img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y,
+                                               img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
+                HERO.lookright = False
+            if HERO.Falling == True:
+                HERO.frame = 1
+            if HERO.lookright == True and dir == 0:
+                HERO.image2.draw(HERO.x, HERO.y, stand_img_list[HERO.levelcode], stand_img_list[HERO.levelcode])
+            if HERO.lookright == False and dir == 0:
+                HERO.image2.composite_draw(2 * 3.14, 'h', HERO.x, HERO.y, stand_img_list[HERO.levelcode],
+                                           stand_img_list[HERO.levelcode])
 
 next_state_table = {
      IdleState:{LEFT_UP:RunState,RIGHT_UP:RunState,LEFT_DOWN:RunState,RIGHT_DOWN:RunState,JUMP_DOWN:IdleState,SPACE:IdleState,JUMP_END:IdleState
@@ -142,10 +158,12 @@ class HERO:
         self.levelcode = 0  #0 일반 1 커짐 2 불공격가능 3 무적
         self.die = False
         self.endy=self.y+200
+        self.velocity = 1
         self.lookright = True #캐릭터 보고 있는 방향 체크
         self.Falling = False
         self.Jumping = False #점프가 가능하냐?
         self.parent = None
+        self.clear = False
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
@@ -155,81 +173,110 @@ class HERO:
         self.firesound.set_volume(32)
         self.levelupsound = load_wav('level_up.wav')
         self.levelupsound.set_volume(32)
+        self.deadsound = load_wav('mario_die.wav')
+        self.deadsound.set_volume(64)
+        self.clearsound = load_wav('clear.wav')
+        self.clearsound.set_volume(64)
     def update(self):
-        self.cur_state.do(self)
-        if len(self.event_que) > 0:
-            event = self.event_que.pop()
-            self.cur_state.exit(self, event)
-            try:
-                history.append((self.cur_state.__name__,event_name[event]))
-                self.cur_state = next_state_table[self.cur_state][event]
-            except:
-                print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
-                exit(-1)
-            self.cur_state.enter(self, event)
-        if self.Jumping == True:
-            self.frame = 1
-            self.Jump()
-        #블록 충돌체크
-        for block in server.blocks:
-            if collision.collide(self,block):
-                if collision.collidebottom(self,block):
-                    self.Falling = True
-                    block.life -= 1
-                    block.make_obj()
-                    self.add_event(JUMP_END)
-                else:
-                    self.set_parent(block)
-                    self.Falling = False
-                    self.Jumping = False
-                    self.endy = self.y + 200
-            if self.parent == block and collision.gravity(self,block):
-                self.parent = None
-        #바닥 충돌체크
-        if collision.collide(self,server.floor):
-            self.set_parent(server.floor)
-            self.Falling = False
-            self.Jumping = False
-            self.endy = self.y + 200
-        #하수구 충돌체크
-        if collision.collide(self,server.se):
-            if collision.collidebottom(self,server.se):
-                if self.lookright == False:
-                    self.x -= -(RUN_SPEED_PPS/30)
-                else:
-                    self.x += -(RUN_SPEED_PPS/30)
-            else:
-                self.set_parent(server.se)
+        if self.clear== True:
+            self.clearsound.play()
+            game_framework.change_state(result)
+        if self.die != True:
+            self.cur_state.do(self)
+            if len(self.event_que) > 0:
+                event = self.event_que.pop()
+                self.cur_state.exit(self, event)
+                try:
+                    history.append((self.cur_state.__name__,event_name[event]))
+                    self.cur_state = next_state_table[self.cur_state][event]
+                except:
+                    print('State: ', self.cur_state.__name__ , 'Event: ',event_name[event])
+                    exit(-1)
+                self.cur_state.enter(self, event)
+            if self.Jumping == True:
+                self.frame = 1
+                self.Jump()
+            #블록 충돌체크
+            for block in server.blocks:
+                if collision.collide(self,block):
+                    if collision.collidebottom(self,block):
+                        self.Falling = True
+                        block.life -= 1
+                        block.make_obj()
+                        self.add_event(JUMP_END)
+                    else:
+                        self.set_parent(block)
+                        self.Falling = False
+                        self.Jumping = False
+                        self.endy = self.y + 200
+                        self.y = block.y+52
+                if self.parent == block and collision.gravity(self,block):
+                    self.parent = None
+            #바닥 충돌체크
+            if collision.collide(self,server.floor):
+                self.set_parent(server.floor)
                 self.Falling = False
                 self.Jumping = False
                 self.endy = self.y + 200
-        else:
-            if self.parent == server.se and collision.gravity(self,server.se):
-                self.parent=None
-        for mon in server.mon:
-            #몬스터 충돌체크
-            if collision.collide(self,mon):
-                if collision.collidebottom(self,mon) and mon.die != True:
-                    self.die = True
-                    print("die")
-                if self.Falling == True:
-                    mon.die = True
-                    mon.diesound.play()
-        if self.Falling == True:
-            if self.levelcode == 0:
-                self.frame = 1
+            #하수구 충돌체크
+            if collision.collide(self,server.se):
+                if collision.collidebottom(self,server.se):
+                    if self.lookright == False:
+                        self.x -= -(RUN_SPEED_PPS/30)
+                    else:
+                        self.x += -(RUN_SPEED_PPS/30)
+                else:
+                    self.set_parent(server.se)
+                    self.Falling = False
+                    self.Jumping = False
+                    self.endy = self.y + 200
+                    self.y = server.se.y + 95
             else:
-                self.frame = 0
-            self.y -= JUMP_SPEED_PPS
-        #중력쓰
-        if self.parent == None and self.Jumping == False:
-            self.Jumping = False
-            self.Falling = True
+                if self.parent == server.se and collision.gravity(self,server.se):
+                    self.parent=None
+            for mon in server.mon:
+                #몬스터 충돌체크
+                if collision.collide(self,mon):
+                    if self.Falling == True:
+                        mon.die = True
+                        mon.diesound.play()
+                    elif self.Falling == False and mon.die != True:
+                        if self.levelcode == 0:
+                            self.die = True
+                        else:
+                            self.levelcode -= 1
+                            self.levelup(self.levelcode)
+                            server.turtle.die = True
+            if collision.collide(self, server.turtle):
+                if self.Falling == True:
+                    server.turtle.die = True
+                    server.turtle.diesound.play()
+                elif self.Falling == False and server.turtle.die != True:
+                    if self.levelcode == 0:
+                        self.die = True
+                    else:
+                        self.levelcode -= 1
+                        self.levelup(self.levelcode)
+                        server.turtle.die = True
+            if self.Falling == True:
+                if self.levelcode == 0:
+                    self.frame = 1
+                else:
+                    self.frame = 0
+                self.y -= JUMP_SPEED_PPS
+            if collision.collide(self,server.flag):
+                self.clear = True
+            #중력쓰
+            if self.parent == None and self.Jumping == False:
+                self.Jumping = False
+                self.Falling = True
+        else:
+            if self.die == True:
+                self.dead()
     def add_event(self, event):
         self.event_que.insert(0, event)
     def draw(self):
         self.cur_state.draw(self)
-        #draw_rectangle(*self.get_bb())
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
@@ -263,3 +310,10 @@ class HERO:
             self.frame =1
         else:
             self.frame=0
+    def dead(self):
+        self.deadsound.play()
+        if self.y >= self.endy:
+            self.velocity *=-1
+        self.y += RUN_SPEED_MPS*game_framework.frame_time * self.velocity*100
+        if self.y < 0:
+            game_framework.change_state(result)

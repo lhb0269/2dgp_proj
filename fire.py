@@ -47,6 +47,10 @@ class Fire:
                 mon.die = True
                 mon.diesound.play()
                 game_world.remove_object(self)
+        if collision.collide(self, server.turtle) and server.turtle.die != True:
+            server.turtle.die = True
+            server.turtle.diesound.play()
+            game_world.remove_object(self)
 
     def get_bb(self):
         return self.x - 5, self.y - 5, self.x + 5, self.y + 5
