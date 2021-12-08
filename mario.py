@@ -26,12 +26,12 @@ FRAMES_PER_ACTION = 8
 history = [] #()현재상태ㅐ,이벤트) 튜플의 리스트
 LEFT_DOWN,RIGHT_DOWN,LEFT_UP,RIGHT_UP,JUMP_DOWN,JUMP_END,SPACE,LEVELUP = range(8)
 event_name = 'LEFT_DOWN', 'RIGHT_DOWN', 'LEFT_UP', 'RIGHT_UP', 'JUMP_DOWN','JUMP_UP','JUMP_END','SPACE','LEVEL_UP'
-Run_Img_code = 'mario_run.png','star_run.png','big_mario_run.png'
-stand_img_code = 'mario_stand.png','mario_kid_star.png','mario_man_star.png'
+Run_Img_code = 'mario_run.png','run_big_mario.png','run_firemario.png','star_run.png','big_mario_run.png'
+stand_img_code = 'mario_stand.png','stand_big_mario.png','stand_firemario.png','mario_kid_star.png','mario_man_star.png'
 
 img_size_xlist=50,50,50
-img_size_ylist=50,50,100
-stand_img_list = 50,50,90
+img_size_ylist=50,70,70
+stand_img_list = 50,70,70
 key_event_table ={
     (SDL_KEYDOWN,SDLK_a):LEFT_DOWN,
     (SDL_KEYDOWN,SDLK_d):RIGHT_DOWN,
@@ -55,10 +55,12 @@ class IdleState:
             elif event == RIGHT_UP:
                 dir=0
             elif event == JUMP_DOWN and HERO.Falling == False:
+                HERO.jumpsound.play()
                 HERO.Jumping = True
                 HERO.Falling = False
     def exit(HERO,event):
         if event == SPACE:
+            HERO.firesound.play()
             HERO.fire()
         if event == LEVELUP:
             HERO.levelup()
@@ -76,9 +78,6 @@ class IdleState:
             HERO.lookright = False
         if  HERO.Falling == True:
             HERO.frame = 1
-        # if HERO.die == True:
-        #     HERO.image2 = load_image('mario_dead.png')
-        #     JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y,stand_img_list[HERO.levelcode],stand_img_list[HERO.levelcode])
         if HERO.lookright == False and dir == 0:
@@ -96,10 +95,12 @@ class RunState:
             elif event == RIGHT_UP:
                 dir=0
             elif event == JUMP_DOWN and HERO.Falling == False:
+                HERO.jumpsound.play()
                 HERO.Jumping = True
                 HERO.Falling = False
     def exit(HERO,event):
         if event == SPACE:
+            HERO.firesound.play()
             HERO.fire()
         if event == LEVELUP:
             HERO.levelup()
@@ -116,9 +117,6 @@ class RunState:
         if dir == 1:
             HERO.image.clip_composite_draw(int(HERO.frame) * 50, 0, img_size_xlist[HERO.levelcode],img_size_ylist[HERO.levelcode], 2 * 3.14, 'h', HERO.x, HERO.y, img_size_xlist[HERO.levelcode], img_size_ylist[HERO.levelcode])
             HERO.lookright = False
-        # if HERO.die == True:
-        #     HERO.image2 = load_image('mario_dead.png')
-        #     JumpState.do(HERO)
         if HERO.lookright == True and dir == 0:
             HERO.image2.draw(HERO.x, HERO.y)
         if HERO.lookright == False and dir == 0:
@@ -151,6 +149,12 @@ class HERO:
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
+        self.jumpsound = load_wav('Jump.wav')
+        self.jumpsound.set_volume(32)
+        self.firesound = load_wav('fire_ball.wav')
+        self.firesound.set_volume(32)
+        self.levelupsound = load_wav('level_up.wav')
+        self.levelupsound.set_volume(32)
     def update(self):
         self.cur_state.do(self)
         if len(self.event_que) > 0:
@@ -210,8 +214,12 @@ class HERO:
                     print("die")
                 if self.Falling == True:
                     mon.die = True
+                    mon.diesound.play()
         if self.Falling == True:
-            self.frame = 1
+            if self.levelcode == 0:
+                self.frame = 1
+            else:
+                self.frame = 0
             self.y -= JUMP_SPEED_PPS
         #중력쓰
         if self.parent == None and self.Jumping == False:
@@ -231,12 +239,13 @@ class HERO:
     def fire(self):
         if self.lookright == True:
             server.fire = Fire(self.x,self.y,-1)
-            game_world.add_object(server.fire,1)
+            game_world.add_object(server.fire,0)
         if self.lookright == False:
             server.fire = Fire(self.x, self.y, 1)
-            game_world.add_object(server.fire, 1)
-    def levelup(self):
-        self.levelcode +=1
+            game_world.add_object(server.fire, 0)
+    def levelup(self,code):
+        self.levelupsound.play()
+        self.levelcode = code
         self.image=load_image(Run_Img_code[self.levelcode])
         self.image2 = load_image(stand_img_code[self.levelcode])
 
@@ -250,3 +259,7 @@ class HERO:
         if self.y >= self.endy:
             self.Falling = True
             self.Jumping = False
+        if self.levelcode ==0:
+            self.frame =1
+        else:
+            self.frame=0

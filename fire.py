@@ -17,16 +17,35 @@ class Fire:
         if Fire.image == None:
             Fire.image = load_image('fire.png')
         self.x, self.y, self.velocity = x, y, velocity*-1
+        self.velocity2 = 1
+        self.endy = self.y+50
     def draw(self):
         self.image.draw(self.x, self.y)
 
     def update(self):
         self.x += self.velocity * game_framework.frame_time*RUN_SPEED_PPS
+        self.y -= self.velocity2*game_framework.frame_time*RUN_SPEED_PPS
+        if self.y >= self.endy:
+            self.velocity2 *=-1
         if self.x < 25 or self.x > 1600 - 25:
             game_world.remove_object(self)
+        if collision.collide(self,server.floor):
+            self.endy = self.y+50
+            self.velocity2*=-1
+        if collision.collide(self, server.se):
+            if collision.collidebottom(self,server.se):
+                game_world.remove_object(self)
+            else:
+                self.endy = self.y + 50
+                self.velocity2 *= -1
+        for block in server.blocks:
+            if collision.collide(self,block):
+                self.endy = self.y + 50
+                self.velocity2 *= -1
         for mon in server.mon:
             if collision.collide(self,mon) and mon.die != True:
                 mon.die = True
+                mon.diesound.play()
                 game_world.remove_object(self)
 
     def get_bb(self):

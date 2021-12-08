@@ -36,6 +36,9 @@ class FLOOR:
         if self.image == None:
             self.image = load_image('floor.png')
         self.x,self.y = 400,20
+        self.bgm = load_music('main_bgm.mp3')
+        self.bgm.set_volume(64)
+        self.bgm.repeat_play()
     def update(self):
         pass
     def draw(self):
@@ -113,7 +116,11 @@ class FLOWER:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.y < self.endy and self.x == self.parent.getXpos():
             self.y += OBJ_SPEED_PPS * game_framework.frame_time
-        if collision.collide(server.hero,self) or self.x < -100 or self.x > 1100:
+        if collision.collide(server.hero, self):
+            self.parent.make = False
+            server.hero.levelup(2)
+            game_world.remove_object(self)
+        if self.x < -100 or self.x > 1100:
             self.parent.make = False
             game_world.remove_object(self)
         if self.x != self.parent.getXpos():
@@ -136,7 +143,11 @@ class STAR:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.y < self.endy and self.x == self.parent.getXpos():
             self.y += OBJ_SPEED_PPS * game_framework.frame_time
-        if collision.collide(server.hero, self) or self.x < -100 or self.x > 1100:
+        if collision.collide(server.hero, self):
+            self.parent.make = False
+            server.hero.levelup(2)
+            game_world.remove_object(self)
+        if self.x < -100 or self.x > 1100:
             self.parent.make = False
             game_world.remove_object(self)
         if self.x != self.parent.getXpos():
@@ -145,3 +156,32 @@ class STAR:
         self.image.clip_draw(25*int(self.frame),0,25,29,self.x,self.y,50,50)
     def get_bb(self):
         return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
+
+class COIN:
+    def __init__(self,x,y,block):
+        self.x = x
+        self.y = y
+        self.endy = y+100
+        self.image = load_image('coin.png')
+        self.frame = 0
+        self.parent = block
+        self.falling = False
+        self.coinsound = load_wav('Coin.wav')
+        self.coinsound.set_volume(32)
+        self.coinsound.play()
+    def update(self):
+        self.x += (mario.dir / 2)
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        if self.y < self.endy and self.falling == False:
+            self.y += OBJ_SPEED_PPS * game_framework.frame_time * 20
+        if self.y >= self.endy:
+            self.falling = True
+        if self.falling == True:
+            self. y -= OBJ_SPEED_PPS * game_framework.frame_time * 20
+            if self.y <= self.endy - 50 :
+                game_world.remove_object(self)
+    def draw(self):
+        self.image.clip_draw(60*int(self.frame),0,60,60,self.x,self.y,50,50)
+    def get_bb(self):
+        return self.x - 25,self.y - 25,self.x + 25 , self.y + 25
+

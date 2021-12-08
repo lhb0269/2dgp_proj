@@ -9,7 +9,7 @@ import game_framework
 import server
 
 PIXEL_PER_METER = (10.0/0.3)
-RUN_SPEED_KMPH = 0.02
+RUN_SPEED_KMPH = 0.05
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM/60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -24,14 +24,18 @@ class Monster:
         self.x = x
         self.y = 62
         self.frame = 0
-        self.dir = -1
+        self.dir = 1
         self.die = False
+        self.diesound = load_wav('enemy_die.wav')
+        self.diesound.set_volume(64)
     def update(self):
         if self.die == False:
             self.frame = (self.frame+FRAMES_PER_ACTION*ACTION_PER_TIME*game_framework.frame_time)%2
-            self.x += (self.dir)-RUN_SPEED_PPS
             if collision.collide(self,server.se):
-                pass
+                self.dir *=-1
+                self.x -= self.dir
+            else:
+                self.x -= RUN_SPEED_PPS * self.dir
         else:
             self.y -= RUN_SPEED_PPS*2
             if self.y <0:

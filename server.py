@@ -11,3 +11,4 @@ floor = None
 fire = None
 flower = None
 star = None
+coin = None

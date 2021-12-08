@@ -8,10 +8,11 @@ import server
 
 from background import STAR
 from background import FLOWER
+from background import COIN
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 /TIME_PER_ACTION
 FRAMES_PER_ACTION = 3
-ypos_list = [200,300]
+ypos_list = [200,400]
 
 class BLOCK:
     BOY_X0, BOY_Y0 = -20, 60
@@ -27,13 +28,16 @@ class BLOCK:
         self.frame = 0
         self.objectcode=0
     def setbox(self):
-        self.x = random.randint(1, 5) * 60 + 900
+        self.x = random.randint(15, 18) * 60
+        if self.x > server.se.x-71 and self.x < server.se.x+71:
+            self.x = random.randint(1, 5) * 30 + 900
         self.y = ypos_list[random.randint(0, 1)]
         self.code = random.randint(0,1)
         if self.code == 0:
             self.life = 3
         elif self.code == 1:
             self.life = 2
+        self.make = False
     def update(self):
         self.x += (mario.dir / 2)
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
@@ -60,7 +64,7 @@ class BLOCK:
         return self.x - 30, self.y-28, self.x + 30, self.y
     def make_obj(self):
         if self.code == 1 and self.life == 1 and self.make == False:
-            self.objectcode = random.randint(0,1)
+            self.objectcode = random.randint(0,8)
             if self.objectcode == 0:
                 server.star=STAR(self.x,self.y,self)
                 game_world.add_object(server.star,0)
@@ -68,6 +72,10 @@ class BLOCK:
             elif self.objectcode == 1:
                 server.flower = FLOWER(self.x, self.y,self)
                 game_world.add_object(server.flower, 0)
+                self.make = True
+            else:
+                server.coin = COIN(self.x, self.y, self)
+                game_world.add_object(server.coin, 0)
                 self.make = True
             self.code=2
     def getXpos(self):
